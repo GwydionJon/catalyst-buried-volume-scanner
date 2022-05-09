@@ -5,7 +5,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 
-import py2sambvca
+import py2sambvca_old
 import os
 import subprocess
 import sys
@@ -30,7 +30,7 @@ copyright = "2022, Gwydion Jonathan Daskalakis, Burns, J."
 author = "Gwydion Jonathan Daskalakis, Burns, J."
 
 # The full version, including alpha/beta/rc tags
-release = py2sambvca.__version__
+release = py2sambvca_old.__version__
 
 
 # -- General configuration ---------------------------------------------------
