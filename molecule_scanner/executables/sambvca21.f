@@ -69,7 +69,7 @@ c=========================================================================
       Real*8 :: y_axis(3)                       ! unit vector for y axis
       Real*8 :: z_axis(3)                       ! unit vector for z axis
       Real*8 :: z_GC(3)                         ! geometry center of atoms defining z-axis
-      Real*8 :: x_temp_GC(3)                    ! geometry center of atoms 
+      Real*8 :: x_temp_GC(3)                    ! geometry center of atoms
       Real*8 :: bench_vec(3)                    ! align to bench_vec
       Real*8 :: Initial(3)                      ! initial z
 
@@ -97,7 +97,7 @@ c=========================================================================
       Integer :: VburDist(NpsMax)               ! distribution of the Vbur among different frames
       Integer :: Vbur4Dist(4, NpsMax)           ! distribution of the Vbur4 among different frames
       Integer :: Vbur8Dist(8, NpsMax)           ! distribution of the Vbur8 among different frames
-      Integer :: IfWeb                          ! Hardcoded: If IfWeb = 1 print section headers for the web server 
+      Integer :: IfWeb                          ! Hardcoded: If IfWeb = 1 print section headers for the web server
 
       Real*8 :: Wgth                            ! weigth of point, 1.0 inside sphere, 0.5 at surface
       Real*8 :: Radius                          ! radius of sphere
@@ -113,7 +113,7 @@ c=========================================================================
       Real*8 :: zmin                            ! bottom z surface
       Real*8 :: zmax                            ! top z surface
       Real*8 :: Volume                          ! volume of the sphere
-      Real*8 :: space                           ! grid point size 
+      Real*8 :: space                           ! grid point size
       Real*8 :: notch                           ! starting point of the plot
       Real*8 :: smin                            ! starting point of one grid
       Real*8 :: smax                            ! ending point of one grid
@@ -132,7 +132,7 @@ c=========================================================================
       Character*4   :: suffix_xyz               ! suffix for file : .xyz
       Character*100 :: BaseName                 ! the BaseName identifying the job files
       Character*100 :: VburINP                  ! input file for Vbur
-      Character*100 :: VburOUT                  ! output file 
+      Character*100 :: VburOUT                  ! output file
       Character*100 :: VburDAT                  ! output file for Vbur values
       Character*100 :: VburDistOUT              ! output file for Vbur_distribution
       Character*100 :: RotatedXYZ               ! output file for rotated molecule
@@ -141,8 +141,8 @@ c=========================================================================
       Character*100 :: Quadrant8                ! project the Vbur into 8 sphere octants
       Character*100 :: Quadrant8Dist            ! distribution within 8 sphere octants
       Character*100 :: CheckCoord               ! check if the coordinates are successfully manipulated
-      Character*100 :: TopSurface               ! top surface 
-      Character*100 :: BotSurface               ! bottmon surface 
+      Character*100 :: TopSurface               ! top surface
+      Character*100 :: BotSurface               ! bottmon surface
 
 c=========================================================================
 c simple index and temporary variables
@@ -175,7 +175,7 @@ c=========================================================================
       suffix_out = ".out"
 
 c====================================================================================
-c Line below  is  a hard coded parameter defining directories and output style.  
+c Line below  is  a hard coded parameter defining directories and output style.
 c IfWeb=1 triggers options for the webserver. IfWeb=0 to be used in line mode
 c====================================================================================
 c
@@ -220,7 +220,7 @@ c=========================================================================
 c Reading the input file
 c=========================================================================
 
-c atoms to be deleted 
+c atoms to be deleted
       read(101,*)nAtomDel
       if(nAtomDel.gt.0)then
         Allocate (IndDel(nAtomDel))
@@ -242,7 +242,7 @@ c atoms defining the xz plane
       Allocate (Indxz(nAtom_xz))
       read(101,*)Indxz(1:nAtom_xz)
 
-c radius of the sphere 
+c radius of the sphere
       read(101,*)Radius
 
 c displacement of geometry center from the center of sphere
@@ -270,9 +270,9 @@ c read atom types and radius
         read(101,*)AtomTypeName(i),AtomTypeRadius(i)
       enddo
 
-      CALL CheckControlParameters(nAtomDel, IndDel, 
-     x     nAtomGC, IndGC, nAtom_z, IndAxis, nAtom_xz, Indxz, 
-     x     Radius, Disp, BinSize, RemoveH, DoMap, 
+      CALL CheckControlParameters(nAtomDel, IndDel,
+     x     nAtomGC, IndGC, nAtom_z, IndAxis, nAtom_xz, Indxz,
+     x     Radius, Disp, BinSize, RemoveH, DoMap,
      x     AlignZ, nTypes, AtomTypeName, AtomTypeRadius)
 
 c==========================================================================
@@ -293,7 +293,7 @@ c read coordinates of atoms composing the molecule to be analyzed
           read(101,*,end=901)AtomNames(i),
      x    Coord(j+1),Coord(j+2),Coord(j+3)
         enddo
- 
+
 c write input coordinates in output:
         write(200,*)
         write(200,'(a39,16x,i5)')
@@ -390,7 +390,7 @@ c remove deleted atoms "AS" and H atoms,  if requested, by working array
 c assign atom radius from the data base
         do i = 1, natoms
           k = 0
-          call ToUpperCase(AtomNames(i),ATOMNAME) 
+          call ToUpperCase(AtomNames(i),ATOMNAME)
           do j = 1, nTypes
             if (ATOMNAME .eq. AtomTypeName(j))then
               k = 1
@@ -447,7 +447,7 @@ c remove atoms far away from the sphere
 c initialize some parameters for the Vbur calculation
 c increase marginally square radius of sphere (Radius2) to capture
 c grid points that are on the sphere surface.
-c 
+c
         Radius2 = Radius * Radius +0.0001*BinSize*BinSize
         BinSize2 = BinSize * BinSize
         BinSize3 = BinSize2 * BinSize
@@ -513,14 +513,14 @@ c=========================================================
                   if(dist2.lt.AtomRadius2(l)) IfOverlap = 1
                 enddo
 c
-c no overlap of grid point with any atom 
+c no overlap of grid point with any atom
                 if(IfOverlap.eq.0)then
                   Vburf = Vburf + BinSize3*Wgth
                   Call Proj4(x, y, z, Vbur4f, BinSize, BinSize3, Wgth)
                   Call Proj8(x, y, z, Vbur8f, BinSize, BinSize3, Wgth)
                 endif
 c
-c grid point overlapping with at least one atom 
+c grid point overlapping with at least one atom
                 if(IfOverlap.eq.1)then
                   Vburo = Vburo + BinSize3*Wgth
                   Call Proj4(x, y, z, Vbur4o, BinSize, BinSize3, Wgth)
@@ -555,8 +555,8 @@ c make map
      x          VburDist(j) = VburDist(j) + 1
         enddo
 
-        Call OutputVbur(Volume, NumInside, BinSize3, Vburf, 
-     x                  Vburo, VburTot, IndFrame, VburDist, npoints, 
+        Call OutputVbur(Volume, NumInside, BinSize3, Vburf,
+     x                  Vburo, VburTot, IndFrame, VburDist, npoints,
      x                  space, notch, IfWeb)
 
         write(204,*) '# notch   --        -+        ++        +-   '
@@ -569,7 +569,7 @@ c make map
             if((temp.gt.smin).and.(temp.lt.smax))
      x          Vbur4Dist(k, j) = Vbur4Dist(k, j) + 1.0
           enddo
-          write(204,'(f5.1,4f10.1)') smin + notch, 
+          write(204,'(f5.1,4f10.1)') smin + notch,
      x    (REAL(Vbur4Dist(k,j))/REAL(IndFrame), k = 1, 4)
         enddo
 
@@ -584,7 +584,7 @@ c make map
             if((temp.gt.smin).and.(temp.lt.smax))
      x         Vbur8Dist(k, j) = Vbur8Dist(k, j) + 1
           enddo
-          write(206, '(f5.1,8f10.5)') smin + notch, 
+          write(206, '(f5.1,8f10.5)') smin + notch,
      x    (REAL(Vbur8Dist(k,j))/REAL(IndFrame), k = 1, 8)
         enddo
 
@@ -595,7 +595,7 @@ c make map
 c Below, end loop over frames
       enddo
  901  continue
- 
+
       write(200,*)
       write(200,*)' No. of frames analyzed : ',IndFrame
       write(200,*)
@@ -661,9 +661,9 @@ c=======================================================================
 c=======================================================================
 c This subroutine is to check if the input file is correctly read      c
 c=======================================================================
-      subroutine CheckControlParameters(nAtomDel, IndDel, 
+      subroutine CheckControlParameters(nAtomDel, IndDel,
      x nAtomGC, IndGC, nAtom_z, IndAxis, nAtom_xz, Indxz, Radius,
-     x Disp, BinSize, RemoveH, DoMap, 
+     x Disp, BinSize, RemoveH, DoMap,
      x AlignZ, nTypes, AtomTypeName, AtomTypeRadius)
 
       Implicit None
@@ -699,14 +699,14 @@ c End variables definition
 
       write(200,'(a39,16x,i5)')
      x"Checking: No. of atoms to be removed : ", nAtomDel
-      if (nAtomDel.gt.0) then 
+      if (nAtomDel.gt.0) then
          write(200,'(a32)')
      x   "Checking: Atoms to be removed : "
          write(200,'(10i5)')IndDel(1:nAtomDel)
       endif
 
       write(200,'(a51,4x,i5)')
-     x"Checking: No. of atoms defining the sphere center :", nAtomGC 
+     x"Checking: No. of atoms defining the sphere center :", nAtomGC
       write(200,'(a44,11x,i5)')
      x"Checking: Atoms defining the sphere center :"
       write(200,'(10i5)')IndGC(1:nAtomGC)
@@ -716,7 +716,7 @@ c End variables definition
       write(200,'(10i5)')IndAxis(1:nAtom_z)
 
       write(200,'(a47,8x,i5)')
-     x"Checking : No. of atoms defining the XZ-plane :", nAtom_xz 
+     x"Checking : No. of atoms defining the XZ-plane :", nAtom_xz
       write(200,'(10i5)')Indxz(1:nAtom_xz)
 
       if (AlignZ.eq.1) write(200,*)
@@ -755,11 +755,11 @@ c End variables definition
       end subroutine CheckControlParameters
 
 c=======================================================================
-c This subroutine is to construct the original point and the 
+c This subroutine is to construct the original point and the
 c orthogonol axis based on the input information
 c=======================================================================
       subroutine ConstructXYZ(GC, natoms, Coord, IndGC, nAtomGC, z_GC,
-     x          nAtom_z, IndAxis, nAtom_xz, Indxz, 
+     x          nAtom_z, IndAxis, nAtom_xz, Indxz,
      x          x_axis, y_axis, z_axis, x_temp_GC)
       Implicit None
 
@@ -835,7 +835,7 @@ c second vector in x-z plane
           write(200,*)"wrong atoms to define x-z plane"
           stop
         endif
-        
+
         if ((j.gt.0).and.(j.le.natoms))then
           j = (j - 1) * 3
           do k = 1, 3
@@ -906,7 +906,7 @@ c=======================================================================
 c=======================================================================
 c This subroutine is to align molecule along certain direction         c
 c=======================================================================
-      subroutine ali(Coord, bench_vec, initial, x_axis, y_axis, z_axis, 
+      subroutine ali(Coord, bench_vec, initial, x_axis, y_axis, z_axis,
      x          GC, natoms)
       Implicit None
 
@@ -936,7 +936,7 @@ c get rotation axis
       call CrossPro(initial, bench_vec, rot)
 
 c build Rodrigue's matrix
-      costheta = initial(1) * bench_vec(1) + initial(2) * bench_vec(2) 
+      costheta = initial(1) * bench_vec(1) + initial(2) * bench_vec(2)
      x         + initial(3) * bench_vec(3)
       dl = 1.0 - costheta
       sintheta = sqrt(1.0 - costheta * costheta)
@@ -1246,7 +1246,7 @@ c check if point is on +y+z plane
         return
       endif
 
-      if((x.lt.0.0).and.(y.le.0.0).and.(z.lt.0.0))Vb8(1) = Vb8(1) +W*BS3 
+      if((x.lt.0.0).and.(y.le.0.0).and.(z.lt.0.0))Vb8(1) = Vb8(1) +W*BS3
       if((x.lt.0.0).and.(y.le.0.0).and.(z.ge.0.0))Vb8(5) = Vb8(5) +W*BS3
       if((x.lt.0.0).and.(y.gt.0.0).and.(z.lt.0.0))Vb8(2) = Vb8(2) +W*BS3
       if((x.lt.0.0).and.(y.gt.0.0).and.(z.ge.0.0))Vb8(6) = Vb8(6) +W*BS3
@@ -1261,7 +1261,7 @@ c=======================================================================
 c This subroutine is to output general infor. for Vbur calculation     c
 c=======================================================================
       subroutine OutputVbur(Volume, NumInside, BinSize3, Vburf,
-     x           Vburo, VburTot, IndFrame, VburDist, npoints, 
+     x           Vburo, VburTot, IndFrame, VburDist, npoints,
      x           space, notch, IfWeb)
       Implicit None
 
@@ -1316,7 +1316,7 @@ c=======================================================================
 
       write(202,*) '# notch   n/ntot'
       do i = 1, npoints
-        write(202,'(f8.3,f10.6)') REAL(i-1)*space + notch, 
+        write(202,'(f8.3,f10.6)') REAL(i-1)*space + notch,
      x        VburDist(i)/Real(IndFrame)
       enddo
       end subroutine OutPutVbur
@@ -1358,7 +1358,7 @@ c=======================================================================
      x          100.0 * Vbur4o(4) / (Vbur4f(4) + Vbur4o(4))
 
       write(203,*) '# notch   --        -+        ++        +-   '
-      write(203,'(i5,4f10.5)')IndFrame, 
+      write(203,'(i5,4f10.5)')IndFrame,
      x     (100.0*(Vbur4o(i)/(Vbur4f(i) + Vbur4o(i))), i = 1, 4)
       if (IfWeb.eq.1) write(200,*) '</TABLE_RESULT_3>'
 
@@ -1393,7 +1393,7 @@ c=======================================================================
      x          (Vbur8f(2) + Vbur8o(2)),
      x          100.0 * Vbur8f(2) / (Vbur8f(2) + Vbur8o(2)),
      x          100.0 * Vbur8o(2) / (Vbur8f(2) + Vbur8o(2))
-      write(200,'(a5,4x,5f8.1)')" NE-z", Vbur8f(3), Vbur8o(3), 
+      write(200,'(a5,4x,5f8.1)')" NE-z", Vbur8f(3), Vbur8o(3),
      x          (Vbur8f(3) + Vbur8o(3)),
      x          100.0 * Vbur8f(3) / (Vbur8f(3) + Vbur8o(3)),
      x          100.0 * Vbur8o(3) / (Vbur8f(3) + Vbur8o(3))
@@ -1420,7 +1420,7 @@ c=======================================================================
 
       write(205,*) '# notch   ---       -+-      ++-       +--      --+
      x       -++       +++       +-+'
-      write(205, '(i5,8f10.5)')IndFrame, 
+      write(205, '(i5,8f10.5)')IndFrame,
      x     (100.0*(Vbur8o(i)/(Vbur8f(i) + Vbur8o(i))), i = 1, 8)
 
       if(IfWeb.eq.1)write(200,*) '</TABLE_RESULT_4>'
@@ -1432,9 +1432,9 @@ c This subroutine converts atom names from lower to upper case
 c=======================================================================
       subroutine  ToUpperCase(strIn,strOut)
       implicit none
- 
+
       integer :: i,j
- 
+
       character*4 :: StrIN, StrOut
 
       do i = 1, len(strIn)
@@ -1445,17 +1445,17 @@ c=======================================================================
           strOut(i:i) = strIn(i:i)
         end if
       end do
- 
+
       end subroutine ToUpperCase
 
 c=======================================================================
-c This subroutine writes the molecule in file iouint 
+c This subroutine writes the molecule in file iouint
 c=======================================================================
       subroutine  WriteXYZ(iounit,natoms,Title,AtomNames,Coord)
       implicit none
 
       Integer :: i,j, iounit
-      Integer :: natoms 
+      Integer :: natoms
 
       Real*8 :: Coord(natoms*3)
 

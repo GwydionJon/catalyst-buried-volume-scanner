@@ -5,7 +5,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 
-import py2sambvca_old
+import molecule_scanner
 import os
 import subprocess
 import sys
@@ -26,11 +26,11 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "py2sambvca"
-copyright = "2022, Gwydion Jonathan Daskalakis, Burns, J."
-author = "Gwydion Jonathan Daskalakis, Burns, J."
+copyright = "2022, Gwydion Jonathan Daskalakis"
+author = "Gwydion Jonathan Daskalakis."
 
 # The full version, including alpha/beta/rc tags
-release = py2sambvca_old.__version__
+release = molecule_scanner.__version__
 
 
 # -- General configuration ---------------------------------------------------

@@ -27,15 +27,15 @@ def get_version(rel_path):
 
 # This call to setup() does all the work
 setup(
-    name="py2sambvca",
-    version=get_version("py2sambvca/__init__.py"),
+    name="molecule_scanner",
+    version=get_version("molecule_scanner/__init__.py"),
     description="Simple thin client to interface python scripts with SambVca catalytic pocket Fortran calculator.",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/GwydionJon/py2sambvca",
-    author="Jackson Burns",
+    url="https://github.com/GwydionJon/OC-Forschi",
+    author="Gwydion Daskalakis",
     license="GNU GPLv3",
     classifiers=["Programming Language :: Python :: 3"],
-    packages=["py2sambvca"],
+    packages=["molecule_scanner"],
     include_package_data=True,
 )
