@@ -8,6 +8,7 @@ import pandas as pd
 from collections import defaultdict
 from py2sambvca import p2s
 from hashlib import sha256
+from joblib import Parallel, delayed
 
 """
 displacement (float): Displacement of oriented molecule from sphere center in Angstrom (default 0.0)
@@ -90,6 +91,23 @@ class MoleculeScanner:
         orient_z=True,
         write_surf_files=True,
     ):
+
+        """Calculates the results for a single radius.
+
+        Args:
+        sphere_radius (float): The radius of the sphere.
+        displacement (float): Displacement of oriented molecule from sphere center in Angstrom (default 0.0)
+        mesh_size (float): Mesh size for numerical integration (default 0.10)
+
+        remove_H (bool): True/False Do not remove/remove H atoms from Vbur calculation (default True)
+
+        orient_z (bool): True/False Molecule oriented along negative/positive Z-axis (default True)
+
+        write_surf_files (bool): True/False Do not write/write files for top and bottom surfaces (default True)
+
+        Returns:
+            list: a list of the three dictionaries for the total result, quadrant results and octant results.
+        """
         dir_name = str(
             os.path.join(
                 self.working_dir,
@@ -129,18 +147,28 @@ class MoleculeScanner:
         )
         nhc_p2s.write_input()
         nhc_p2s.calc()
-        return nhc_p2s.parse_output()
+        test_m = nhc_p2s.get_regex(
+            r"^[ ]{5,6}(\d*\.\d*)[ ]{5,6}(\d*\.\d*)[ ]{5,6}(\d*\.\d*)[ ]{5,6}(\d*\.\d*)$"
+        )
+        if test_m is not None:
+            return nhc_p2s.parse_output()
+        else:
+            print(
+                f"No volume could be found for r = {sphere_radius}, skipping output gathering."
+            )
+            return None, None, None
 
     def run_range(
         self,
         r_min,
         r_max,
-        nstep=50,
+        nsteps=50,
         displacement=0.0,
         mesh_size=0.10,
         remove_H=True,
         orient_z=True,
         write_surf_files=True,
+        n_threads=-1,
     ):
         """
         This function is designed to scan a range of sphere_radii.
@@ -149,18 +177,25 @@ class MoleculeScanner:
         Args:
             r_min (number): minimum radius
             r_max (number): maximum radius
-            nstep (int, optional): Number of steps. Defaults to 50.
+            nsteps (int, optional): Number of steps. Defaults to 50.
+            sphere_radius (float): The radius of the sphere.
+            displacement (float): Displacement of oriented molecule from sphere center in Angstrom (default 0.0)
+            mesh_size (float): Mesh size for numerical integration (default 0.10)
 
+            remove_H (bool): True/False Do not remove/remove H atoms from Vbur calculation (default True)
+
+            orient_z (bool): True/False Molecule oriented along negative/positive Z-axis (default True)
+
+            write_surf_files (bool): True/False Do not write/write files for top and bottom surfaces (default True)
+
+            n_threads (int): Sets the number of parallel threads used for calculation. -1 for unlimited. (default -1)
         Returns:
-            pandas.DataFrame: A DateFrame object for easy accsess to the results.
+            pandas.DataFrame: A DateFrame object for easy access to the results.
         """
 
-        dict_total_results = defaultdict(list)
-
-        for r in np.linspace(r_min, r_max, nstep):
-
+        def _run_job(r_current):
             total_results, quadrant_results, octant_results = self.run_single(
-                sphere_radius=r,
+                sphere_radius=r_current,
                 displacement=displacement,
                 mesh_size=mesh_size,
                 remove_H=remove_H,
@@ -168,14 +203,29 @@ class MoleculeScanner:
                 write_surf_files=write_surf_files,
             )
 
-            if total_results["total_volume"] != 0:
-                dict_total_results["r"].append(r)
+            if total_results is not None:
+                dict_total_results["r"].append(r_current)
                 [
                     dict_total_results[key].append(value)
                     for key, value in total_results.items()
                 ]
 
-        df_total_results = pd.DataFrame(dict_total_results)
+        dict_total_results = defaultdict(list)
+
+        #:
+        Parallel(n_jobs=n_threads, prefer="threads", require="sharedmem")(
+            delayed(_run_job)(r) for r in np.linspace(r_min, r_max, nsteps)
+        )
+
+        df_total_results = pd.DataFrame(dict_total_results).sort_values(by=["r"])
         # return original values
 
         return df_total_results
+
+    def plot_graph(
+        self, df, y_data="percent_buried_volume", x_data="r", save_file=None, **args
+    ):
+        if save_file is None:
+            df.plot(x_data, y_data, **args)
+        else:
+            df.plot(x_data, y_data, **args).get_figure().savefig(save_file)

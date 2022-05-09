@@ -1,4 +1,4 @@
-name: py2sambvca
+name: molecule_scanner
 channels:
   - conda-forge
 dependencies:
@@ -9,3 +9,7 @@ dependencies:
   - pandas
   - matplotlib
   - pip
+  - pip:
+      - hashlib
+      - py2sambvca
+      - joblib
