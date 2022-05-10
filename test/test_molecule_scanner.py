@@ -14,7 +14,6 @@ def test_initialize():
         atoms_to_delete_ids=[1],
         # working_dir=os.path.join(os.path.abspath("."), "test_directory")
     )
-    1 / 0
     with pytest.raises(FileNotFoundError):
         msc_test = msc(
             # xyz_filepath="../test/data/nhc.xyz",
