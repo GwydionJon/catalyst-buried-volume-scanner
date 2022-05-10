@@ -40,7 +40,7 @@ class py2sambvca:
         z_ax_atom_ids,
         xz_plane_atoms_ids,
         atoms_to_delete_ids=None,
-        input_file = "py2sambvca_input.inp",
+        input_file="py2sambvca_input.inp",
         sphere_radius=3.5,
         displacement=0.0,
         mesh_size=0.10,
@@ -113,7 +113,7 @@ class py2sambvca:
         self.octant_results = None
 
         # make a temporary folder to work in.
-        #self.tmp_dir = mkdtemp()
+        # self.tmp_dir = mkdtemp()
         self.tmp_dir = "."
         self.input_file = os.path.join(self.tmp_dir, input_file)
 
@@ -271,9 +271,9 @@ class py2sambvca:
                     + r
                     + r"\s*(\d*\.\d*)\s*(\d*\.\d*)\s*(\d*\.\d*)\s*(\d*\.\d*)\s*(\d*\.\d*)$"
                 )
-            
+
                 if m is None:
-                    m=[0,0,0,0,0,0,0]
+                    m = [0, 0, 0, 0, 0, 0, 0]
                 result_dict["free_volume"][r.replace("\\", "")] = float(m[1])
                 result_dict["buried_volume"][r.replace("\\", "")] = float(m[2])
                 result_dict["total_volume"][r.replace("\\", "")] = float(m[3])
@@ -490,13 +490,8 @@ class py2sambvca:
         self.write_input()
         self.calc()
         self.parse_output()
-       # self.clean_files()
+        # self.clean_files()
         return self.total_results, self.quadrant_results, self.octant_results
-
-   
-
-
-
 
 
 radii_table = [
