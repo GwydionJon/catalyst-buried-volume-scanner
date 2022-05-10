@@ -53,6 +53,7 @@ def load_executable():
     else:
         sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.x")
 
+    print(sambvca21_path)
     return sambvca21_path
 
 
