@@ -2,13 +2,14 @@ import glob
 import os
 from tempfile import mkdtemp
 import shutil
-import sys
 import numpy as np
 import pandas as pd
 from collections import defaultdict
 from py2sambvca import p2s
 from hashlib import sha256
 from joblib import Parallel, delayed
+from molecule_scanner import paths
+
 
 """
 displacement (float): Displacement of oriented molecule from sphere center in Angstrom (default 0.0)
@@ -54,7 +55,7 @@ class MoleculeScanner:
 
         verbose (int): 0 for no output, 1 for some output, 2 for the most output
         """
-        self.xyz_filepath = xyz_filepath
+        self.xyz_filepath = paths.locate_file(xyz_filepath)
         if atoms_to_delete_ids is not None:
             self.n_atoms_to_delete = len(atoms_to_delete_ids)
             self.atoms_to_delete_ids = atoms_to_delete_ids
@@ -68,14 +69,7 @@ class MoleculeScanner:
         self.n_z_atoms = len(z_ax_atom_ids)
         self.xz_plane_atoms_ids = xz_plane_atoms_ids
         self.n_xz_plane_atoms = len(xz_plane_atoms_ids)
-
-        sambvcax_dir = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "executables"
-        )
-        if sys.platform == "win32":
-            self.sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.exe")
-        else:
-            self.sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.x")
+        self.sambvca21_path = paths.load_executable()
 
         if working_dir is None:
             self.working_dir = mkdtemp()

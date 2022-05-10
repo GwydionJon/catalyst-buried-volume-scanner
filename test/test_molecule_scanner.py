@@ -15,6 +15,17 @@ def test_initialize():
         # working_dir=os.path.join(os.path.abspath("."), "test_directory")
     )
 
+    with pytest.raises(FileNotFoundError):
+        msc_test = msc(
+            # xyz_filepath="../test/data/nhc.xyz",
+            xyz_filepath="no_valid_file.abc",
+            sphere_center_atom_ids=[1],
+            z_ax_atom_ids=[2],
+            xz_plane_atoms_ids=[1, 3, 9],
+            atoms_to_delete_ids=[1],
+            # working_dir=os.path.join(os.path.abspath("."), "test_directory")
+        )
+
 
 def test_run_single():
     msc_test = msc(
