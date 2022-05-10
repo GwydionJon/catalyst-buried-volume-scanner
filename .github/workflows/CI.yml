@@ -49,9 +49,13 @@ jobs:
       - name: Install development dependencies
         run: |
           python -m pip install -r requirements-dev.txt
-      - name: Run Python tests including notebooks
+      - name: Run Python tests
         run: |
-          python -m pytest --nbval-lax
+          python -m pytest
+
+      - name: run notebook tests
+        run: |
+          python -m pytest --nbval-lax notebooks/
       - name: Run coverage tests
         run: |
           python -m pytest --cov=./molecule_scanner --cov-report=xml

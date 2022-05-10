@@ -1,6 +1,6 @@
 import os
 import sys
-
+import glob
 from tempfile import mkdtemp
 
 _data_dir = None
@@ -52,7 +52,7 @@ def load_executable():
         sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.exe")
     else:
         sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.x")
-
+    print(glob.glob(os.path.join(sambvcax_dir, "*.*"), recursive=True))
     print(sambvca21_path)
     return sambvca21_path
 
