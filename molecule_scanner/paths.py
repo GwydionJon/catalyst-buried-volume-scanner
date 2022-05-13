@@ -90,6 +90,13 @@ def locate_file(filename):
     if _data_dir is not None:
         candidates.append(os.path.join(_data_dir, filename))
 
+    # search in example files
+    candidates.append(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "example_data", "mad25_p.xyz"
+        )
+    )
+
     # Use the current working directory
     candidates.append(os.path.join(os.getcwd(), filename))
 
