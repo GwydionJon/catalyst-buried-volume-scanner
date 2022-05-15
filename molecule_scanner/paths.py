@@ -91,11 +91,17 @@ def locate_file(filename):
         candidates.append(os.path.join(_data_dir, filename))
 
     # search in example files
-    candidates.append(
+
+    if os.path.exists(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "example_data", "mad25_p.xyz"
+            os.path.dirname(os.path.realpath(__file__)), "example_data", filename
         )
-    )
+    ):
+        candidates.append(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "example_data", filename
+            )
+        )
 
     # Use the current working directory
     candidates.append(os.path.join(os.getcwd(), filename))
@@ -106,5 +112,5 @@ def locate_file(filename):
             return candidate
 
     raise FileNotFoundError(
-        f"Cannot locate file {filename}, maybe use set_data_directory to point to the correct location. Tried the following: {', '.join(candidates)}"
+        f"Cannot locate file {filename}, maybe use set_data_directory to point to the correct location. Tried the following: {', '.join(candidates)}. Are you sure the file name is correct?"
     )
