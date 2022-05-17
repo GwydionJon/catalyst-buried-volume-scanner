@@ -16,3 +16,4 @@ dependencies:
   - pip:
       - py2sambvca
       - joblib
+      - git+https://github.com/GwydionJon/OC-Forschi
