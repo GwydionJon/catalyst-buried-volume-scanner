@@ -27,11 +27,11 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v2
         env:
-          # Increase this value to reset cache even if environment.yaml has not changed
+          # Increase this value to reset cache even if environment.yml has not changed
           CACHE_NUMBER: 4
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yaml') }}
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
 
       - name: Create molecule_scanner conda environment
         uses: conda-incubator/setup-miniconda@v2
@@ -39,7 +39,7 @@ jobs:
           auto-update-conda: true
           auto-activate-base: false
           activate-environment: molecule_scanner
-          environment-file: environment.yaml
+          environment-file: environment.yml
           use-only-tar-bz2: true
 
       - name: Install molecule_scanner Python package
@@ -72,11 +72,11 @@ jobs:
       - name: Cache conda
         uses: actions/cache@v2
         env:
-          # Increase this value to reset cache even if environment.yaml has not changed
+          # Increase this value to reset cache even if environment.yml has not changed
           CACHE_NUMBER: 0
         with:
           path: ~/conda_pkgs_dir
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yaml') }}
+          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
 
       - name: Create molecule_scanner conda environment
         uses: conda-incubator/setup-miniconda@v2
@@ -84,7 +84,7 @@ jobs:
           auto-update-conda: true
           auto-activate-base: false
           activate-environment: molecule_scanner
-          environment-file: environment.yaml
+          environment-file: environment.yml
           use-only-tar-bz2: true
 
       - name: Install development dependencies
