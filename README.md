@@ -1,8 +1,7 @@
 # py2sambvca
 
 [![Documentation Status](https://readthedocs.org/projects/py2sambvca/badge/)](https://py2sambvca.readthedocs.io/en/latest/)
-
-Simple thin client to interface python scripts with SambVca catalytic pocket Fortran calculator.
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GwydionJon/OC-Forschi/main)
 
 ## Disclaimer
 
