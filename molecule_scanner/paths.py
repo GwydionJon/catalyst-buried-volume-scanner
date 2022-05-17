@@ -2,11 +2,12 @@ import os
 import sys
 import glob
 from tempfile import mkdtemp
+from tkinter.filedialog import askdirectory
 
 _data_dir = None
 
 
-def set_data_directory(directory, create_dir=False):
+def set_data_directory(directory=None, create_dir=False):
     """Set a custom root directory to locate data files
     :param directory:
         The name of the custom data directory.
@@ -16,9 +17,10 @@ def set_data_directory(directory, create_dir=False):
         not already exist.
     :type created_dir: bool
     """
-
+    if directory is None:
+        directory = askdirectory()
     # Check existence of the given data directory
-    if not os.path.exists(directory):
+    elif not os.path.exists(directory):
         if create_dir:
             os.makedirs(directory, exist_ok=True)
         else:
@@ -52,8 +54,7 @@ def load_executable():
         sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.exe")
     else:
         sambvca21_path = os.path.join(sambvcax_dir, "sambvca21.x")
-    print(glob.glob(os.path.join(sambvcax_dir, "*.*"), recursive=True))
-    print(sambvca21_path)
+
     return sambvca21_path
 
 
@@ -89,6 +90,19 @@ def locate_file(filename):
     if _data_dir is not None:
         candidates.append(os.path.join(_data_dir, filename))
 
+    # search in example files
+
+    if os.path.exists(
+        os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), "example_data", filename
+        )
+    ):
+        candidates.append(
+            os.path.join(
+                os.path.dirname(os.path.realpath(__file__)), "example_data", filename
+            )
+        )
+
     # Use the current working directory
     candidates.append(os.path.join(os.getcwd(), filename))
 
@@ -98,5 +112,5 @@ def locate_file(filename):
             return candidate
 
     raise FileNotFoundError(
-        f"Cannot locate file {filename}, maybe use set_data_directory to point to the correct location. Tried the following: {', '.join(candidates)}"
+        f"Cannot locate file {filename}, maybe use set_data_directory to point to the correct location. Tried the following: {', '.join(candidates)}. Are you sure the file name is correct?"
     )

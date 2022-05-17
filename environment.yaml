@@ -8,6 +8,10 @@ dependencies:
   - numpy
   - pandas
   - matplotlib
+  - jupyterlab-dash
+  - jupyter-dash
+  - dash
+  - plotly
   - pip
   - pip:
       - py2sambvca
