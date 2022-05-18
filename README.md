@@ -1,7 +1,7 @@
 # py2sambvca
 
 [![Documentation Status](https://readthedocs.org/projects/py2sambvca/badge/)](https://py2sambvca.readthedocs.io/en/latest/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GwydionJon/OC-Forschi/main?urlpath=https%3A%2F%2Fgithub.com%2FGwydionJon%2FOC-Forschi%2Ftree%2Fmain%2Fnotebooks)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GwydionJon/OC-Forschi/main)
 
 ## Disclaimer
 
