@@ -13,6 +13,7 @@ dependencies:
   - dash
   - plotly
   - pip
+  - dash
   - pip:
       - py2sambvca
       - joblib
