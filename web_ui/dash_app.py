@@ -29,12 +29,12 @@ app.layout = html.Div(
         # xyz-file upload
         html.Div(
             [
-                html.H5("Here you can configure your burried volume calculation."),
+                html.H5("Here you can configure your buried volume calculation."),
                 dcc.Upload(
                     id="upload-data",
                     children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
                     style={
-                        "width": "20%",
+                        "width": "35%",
                         "height": "60px",
                         "lineHeight": "60px",
                         "borderWidth": "1px",
@@ -77,7 +77,7 @@ app.layout = html.Div(
         ),
         # scan parameter
         html.Div(
-            html.Button(id="init_button", n_clicks=0, children="Initilize molecule")
+            html.Button(id="init_button", n_clicks=0, children="Initialize molecule")
         ),
     ],
     id="layout",
@@ -116,7 +116,7 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
         # setup molecule scanner as part of the app object
         app.molecule_scanner = msc(
             xyz_filepath=os.path.join(working_dir, filename),
-            # split comma seperated strings into list of int
+            # split comma separated strings into list of int
             sphere_center_atom_ids=list(map(int, center_id.split(","))),
             z_ax_atom_ids=list(map(int, z_id.split(","))),
             xz_plane_atoms_ids=list(map(int, xz_id.split(","))),
@@ -127,7 +127,7 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
         orig_layout.append(
             html.Div(
                 [
-                    html.Div(f"Initilizing:"),
+                    html.Div(f"Initializing:"),
                     html.Div(f"File: {filename}"),
                     html.Div(f"center_id: {center_id}"),
                     html.Div(f"z_id: {z_id}"),
@@ -238,6 +238,28 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
                                                     "flex-direction": "row",
                                                 },
                                             ),
+                                            # sclaing
+                                            html.Div(
+                                                [
+                                                    html.P(
+                                                        "radius scaling",
+                                                        style={"width": "5%"},
+                                                    ),
+                                                    dcc.Input(
+                                                        id="input_radii_scale",
+                                                        value=1,
+                                                        type="number",
+                                                        placeholder="Enter scale value",
+                                                        style={"width": "20%"},
+                                                        min=0,
+                                                        max=10,
+                                                    ),
+                                                ],
+                                                style={
+                                                    "display": "flex",
+                                                    "flex-direction": "row",
+                                                },
+                                            ),
                                             # checklist remove h
                                             html.Div(
                                                 dcc.Checklist(
@@ -264,7 +286,6 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
                                             ),
                                         ),
                                     ),
-                                    # dcc.Graph(id="2d_plot"),
                                 ]
                             ),
                         ),
@@ -364,9 +385,10 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
     State("input_n_step", "value"),
     State("input_mesh_size", "value"),
     State("input_remove_h", "value"),
+    State("input_radii_scale", "value"),
     prevent_initial_call=True,
 )
-def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h):
+def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
     # generate table
 
     app.df_scan = app.molecule_scanner.run_range(
@@ -376,6 +398,7 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h):
         mesh_size=mesh_size,
         remove_H=bool(remove_h),
         write_surf_files=False,
+        radii_scale=radii_scale,
     )
     # plot config
     plot_names = list(app.df_scan.keys())
@@ -481,7 +504,7 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
     results_display_3d = html.Div(
         [
             html.H4("PLY Object Explorer"),
-            html.P("Choose a cavity visualisation:"),
+            html.P("Choose a cavity visualization:"),
             dcc.Dropdown(
                 id="dropdown_3d", options=mesh_names, value="Top", clearable=False
             ),
