@@ -15,6 +15,7 @@ dependencies:
   - pip
   - dash
   - dash-bio
+  - setuptools 65.6.3
   - pip:
       - git+https://github.com/GwydionJon/py2sambvca
       - joblib
