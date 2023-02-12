@@ -14,7 +14,9 @@ dependencies:
   - plotly
   - pip
   - dash
+  - dash-bio
   - pip:
-      - py2sambvca
+      - git+https://github.com/GwydionJon/py2sambvca
       - joblib
       - git+https://github.com/GwydionJon/OC-Forschi
+      - waitress

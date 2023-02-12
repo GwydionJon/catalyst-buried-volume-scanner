@@ -1,5 +1,4 @@
 from dash import dcc, html, Dash, dash_table
-import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from molecule_scanner import *
 import os
@@ -7,6 +6,9 @@ import base64
 from tempfile import mkdtemp
 import plotly.graph_objects as go
 import numpy as np
+import dash_bio as dashbio
+
+from dash_bio.utils import PdbParser, create_mol3d_style
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -97,6 +99,224 @@ def update_upload_label(filename, file_content):
     return html.Div([f"Loaded {filename}.  Upload new ", html.A("File")])
 
 
+def create_2d_tab():
+    tab_2d = (
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H5(
+                            children="Enter the desired scan parameters",
+                            style={"marginTop": "20px"},
+                        ),
+                        # rmin
+                        html.Div(
+                            [
+                                html.P("R-Min", style={"width": "5%"}),
+                                dcc.Input(
+                                    id="input_r_min",
+                                    value=1.3,
+                                    type="number",
+                                    placeholder="Enter R-min",
+                                    style={"width": "20%"},
+                                    min=0,
+                                    max=100,
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "row",
+                            },
+                        ),
+                        # r_max
+                        html.Div(
+                            [
+                                html.P("R-Max", style={"width": "5%"}),
+                                dcc.Input(
+                                    id="input_r_max",
+                                    value=7,
+                                    type="number",
+                                    placeholder="Enter R-max",
+                                    style={"width": "20%"},
+                                    min=0,
+                                    max=100,
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "row",
+                            },
+                        ),
+                        # steps
+                        html.Div(
+                            [
+                                html.P("Steps", style={"width": "5%"}),
+                                dcc.Input(
+                                    id="input_n_step",
+                                    value=50,
+                                    type="number",
+                                    placeholder="Enter number of steps",
+                                    style={"width": "20%"},
+                                    min=0,
+                                    max=100000,
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "row",
+                            },
+                        ),
+                        # resolution
+                        html.Div(
+                            [
+                                html.P(
+                                    "mesh size",
+                                    style={"width": "5%"},
+                                ),
+                                dcc.Input(
+                                    id="input_mesh_size",
+                                    value=0.1,
+                                    type="number",
+                                    placeholder="Enter mesh size",
+                                    style={"width": "20%"},
+                                    min=0,
+                                    max=1,
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "row",
+                            },
+                        ),
+                        # scaling
+                        html.Div(
+                            [
+                                html.P(
+                                    "radius scaling",
+                                    style={"width": "5%"},
+                                ),
+                                dcc.Input(
+                                    id="input_radii_scale",
+                                    value=1,
+                                    type="number",
+                                    placeholder="Enter scale value",
+                                    style={"width": "20%"},
+                                    min=0,
+                                    max=10,
+                                ),
+                            ],
+                            style={
+                                "display": "flex",
+                                "flex-direction": "row",
+                            },
+                        ),
+                        # checklist remove h
+                        html.Div(
+                            dcc.Checklist(
+                                ["remove H atoms"],
+                                ["remove H atoms"],
+                                id="input_remove_h",
+                            )
+                        ),
+                    ]
+                ),
+                # start 2d calculation
+                html.Div(
+                    dcc.Loading(
+                        id="loading_scan",
+                        children=html.Div(
+                            [
+                                html.Button(
+                                    id="scan_start_button",
+                                    n_clicks=0,
+                                    children="Start Scan",
+                                ),
+                                html.Div(id="scan_plot_div"),
+                            ]
+                        ),
+                    ),
+                ),
+            ]
+        ),
+    )
+    return tab_2d
+
+
+def create_3d_tab():
+    tab_3d = (
+        html.Div(
+            [
+                html.H5(
+                    children="Enter the desired cavity parameters",
+                    style={"marginTop": "20px"},
+                ),
+                html.Div(
+                    [
+                        html.P("Sphere radius:", style={"width": "5%"}),
+                        dcc.Input(
+                            id="input_sphere_radius_3d",
+                            value=2.7,
+                            type="number",
+                            placeholder="Enter sphere radius",
+                            style={"width": "20%"},
+                            min=0,
+                            max=100,
+                        ),
+                    ],
+                    style={
+                        "display": "flex",
+                        "flex-direction": "row",
+                    },
+                ),
+                # resolution 3d
+                html.Div(
+                    [
+                        html.P("mesh size:", style={"width": "5%"}),
+                        dcc.Input(
+                            id="input_mesh_size_3d",
+                            value=0.1,
+                            type="number",
+                            placeholder="Enter mesh size",
+                            style={"width": "20%"},
+                            min=0,
+                            max=1,
+                        ),
+                    ],
+                    style={
+                        "display": "flex",
+                        "flex-direction": "row",
+                    },
+                ),
+                # checklist remove h
+                html.Div(
+                    dcc.Checklist(
+                        ["remove H atoms"],
+                        ["remove H atoms"],
+                        id="input_remove_h_3d",
+                    )
+                ),
+                # start 3d calculation
+                html.Div(
+                    dcc.Loading(
+                        id="loading_scan",
+                        children=html.Div(
+                            [
+                                html.Button(
+                                    id="3d_start_button",
+                                    n_clicks=0,
+                                    children="Calculate Cavity",
+                                ),
+                                html.Div(id="3d_plot_div"),
+                            ]
+                        ),
+                    )
+                ),
+            ]
+        ),
+    )
+    return tab_3d
+
+
 @app.callback(
     Output("layout", "children"),
     Input("init_button", "n_clicks"),
@@ -133,237 +353,25 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
                     html.Div(f"z_id: {z_id}"),
                     html.Div(f"xz_id: {xz_id}"),
                     html.Div(f"del_id: {del_id}"),
+                    # add 3d visualization tool
                 ]
             )
         )
+        parser = PdbParser("https://git.io/4K8X.pdb")
+        data = parser.mol3d_data()
 
+        print(data)
+
+        # add all tabs
         layout = html.Div(
             [
                 dcc.Tabs(
                     [
                         dcc.Tab(label="setup", children=orig_layout),
                         # setup the 2d page
-                        dcc.Tab(
-                            label="2D-Scan",
-                            children=html.Div(
-                                [
-                                    html.Div(
-                                        [
-                                            html.H5(
-                                                children="Enter the desired scan parameters",
-                                                style={"marginTop": "20px"},
-                                            ),
-                                            # rmin
-                                            html.Div(
-                                                [
-                                                    html.P(
-                                                        "R-Min", style={"width": "5%"}
-                                                    ),
-                                                    dcc.Input(
-                                                        id="input_r_min",
-                                                        value=1.3,
-                                                        type="number",
-                                                        placeholder="Enter R-min",
-                                                        style={"width": "20%"},
-                                                        min=0,
-                                                        max=100,
-                                                    ),
-                                                ],
-                                                style={
-                                                    "display": "flex",
-                                                    "flex-direction": "row",
-                                                },
-                                            ),
-                                            # r_max
-                                            html.Div(
-                                                [
-                                                    html.P(
-                                                        "R-Max", style={"width": "5%"}
-                                                    ),
-                                                    dcc.Input(
-                                                        id="input_r_max",
-                                                        value=7,
-                                                        type="number",
-                                                        placeholder="Enter R-max",
-                                                        style={"width": "20%"},
-                                                        min=0,
-                                                        max=100,
-                                                    ),
-                                                ],
-                                                style={
-                                                    "display": "flex",
-                                                    "flex-direction": "row",
-                                                },
-                                            ),
-                                            # steps
-                                            html.Div(
-                                                [
-                                                    html.P(
-                                                        "Steps", style={"width": "5%"}
-                                                    ),
-                                                    dcc.Input(
-                                                        id="input_n_step",
-                                                        value=50,
-                                                        type="number",
-                                                        placeholder="Enter number of steps",
-                                                        style={"width": "20%"},
-                                                        min=0,
-                                                        max=100000,
-                                                    ),
-                                                ],
-                                                style={
-                                                    "display": "flex",
-                                                    "flex-direction": "row",
-                                                },
-                                            ),
-                                            # resolution
-                                            html.Div(
-                                                [
-                                                    html.P(
-                                                        "mesh size",
-                                                        style={"width": "5%"},
-                                                    ),
-                                                    dcc.Input(
-                                                        id="input_mesh_size",
-                                                        value=0.1,
-                                                        type="number",
-                                                        placeholder="Enter mesh size",
-                                                        style={"width": "20%"},
-                                                        min=0,
-                                                        max=1,
-                                                    ),
-                                                ],
-                                                style={
-                                                    "display": "flex",
-                                                    "flex-direction": "row",
-                                                },
-                                            ),
-                                            # sclaing
-                                            html.Div(
-                                                [
-                                                    html.P(
-                                                        "radius scaling",
-                                                        style={"width": "5%"},
-                                                    ),
-                                                    dcc.Input(
-                                                        id="input_radii_scale",
-                                                        value=1,
-                                                        type="number",
-                                                        placeholder="Enter scale value",
-                                                        style={"width": "20%"},
-                                                        min=0,
-                                                        max=10,
-                                                    ),
-                                                ],
-                                                style={
-                                                    "display": "flex",
-                                                    "flex-direction": "row",
-                                                },
-                                            ),
-                                            # checklist remove h
-                                            html.Div(
-                                                dcc.Checklist(
-                                                    ["remove H atoms"],
-                                                    ["remove H atoms"],
-                                                    id="input_remove_h",
-                                                )
-                                            ),
-                                        ]
-                                    ),
-                                    # start 2d calculation
-                                    html.Div(
-                                        dcc.Loading(
-                                            id="loading_scan",
-                                            children=html.Div(
-                                                [
-                                                    html.Button(
-                                                        id="scan_start_button",
-                                                        n_clicks=0,
-                                                        children="Start Scan",
-                                                    ),
-                                                    html.Div(id="scan_plot_div"),
-                                                ]
-                                            ),
-                                        ),
-                                    ),
-                                ]
-                            ),
-                        ),
+                        dcc.Tab(label="2D-Scan", children=create_2d_tab()),
                         # setup the 3d page
-                        dcc.Tab(
-                            label="3D-Image",
-                            children=html.Div(
-                                [
-                                    html.H5(
-                                        children="Enter the desired cavity parameters",
-                                        style={"marginTop": "20px"},
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.P(
-                                                "Sphere radius:", style={"width": "5%"}
-                                            ),
-                                            dcc.Input(
-                                                id="input_sphere_radius_3d",
-                                                value=2.7,
-                                                type="number",
-                                                placeholder="Enter sphere radius",
-                                                style={"width": "20%"},
-                                                min=0,
-                                                max=100,
-                                            ),
-                                        ],
-                                        style={
-                                            "display": "flex",
-                                            "flex-direction": "row",
-                                        },
-                                    ),
-                                    # resolution 3d
-                                    html.Div(
-                                        [
-                                            html.P("mesh size:", style={"width": "5%"}),
-                                            dcc.Input(
-                                                id="input_mesh_size_3d",
-                                                value=0.1,
-                                                type="number",
-                                                placeholder="Enter mesh size",
-                                                style={"width": "20%"},
-                                                min=0,
-                                                max=1,
-                                            ),
-                                        ],
-                                        style={
-                                            "display": "flex",
-                                            "flex-direction": "row",
-                                        },
-                                    ),
-                                    # checklist remove h
-                                    html.Div(
-                                        dcc.Checklist(
-                                            ["remove H atoms"],
-                                            ["remove H atoms"],
-                                            id="input_remove_h_3d",
-                                        )
-                                    ),
-                                    # start 3d calculation
-                                    html.Div(
-                                        dcc.Loading(
-                                            id="loading_scan",
-                                            children=html.Div(
-                                                [
-                                                    html.Button(
-                                                        id="3d_start_button",
-                                                        n_clicks=0,
-                                                        children="Calculate Cavity",
-                                                    ),
-                                                    html.Div(id="3d_plot_div"),
-                                                ]
-                                            ),
-                                        )
-                                    ),
-                                ]
-                            ),
-                        ),
+                        dcc.Tab(label="3D-Image", children=create_3d_tab()),
                     ]
                 )
             ]
@@ -566,6 +574,3 @@ def display_mesh(name):
         xaxis=dict(ticksuffix="   ", tickfont_size=fontsize),
     )
     return fig
-
-
-app.run_server(debug=True, use_reloader=True, port=8051)
