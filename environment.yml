@@ -21,3 +21,4 @@ dependencies:
       - joblib
       - git+https://github.com/GwydionJon/OC-Forschi
       - waitress
+      - chemcoord
