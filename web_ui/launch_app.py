@@ -7,6 +7,8 @@ from threading import Timer
 app.title = "molecule scanner"
 server = app.server
 
+# app.run_server(debug=True)
+
 
 def open_browser():
     """

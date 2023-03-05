@@ -7,8 +7,9 @@ from tempfile import mkdtemp
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
-
-from dash_bio.utils import PdbParser, create_mol3d_style
+import chemcoord as cc
+import pandas as pd
+from dash_bio.utils import create_mol3d_style
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -17,86 +18,189 @@ from dash_bio.utils import PdbParser, create_mol3d_style
 external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 working_dir = mkdtemp()
 
-
 # Create the app
 app = Dash(
     __name__,
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=False,
 )
-
-
-app.layout = html.Div(
-    [
-        # xyz-file upload
-        html.Div(
-            [
-                html.H5("Here you can configure your buried volume calculation."),
-                dcc.Upload(
-                    id="upload-data",
-                    children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
-                    style={
-                        "width": "35%",
-                        "height": "60px",
-                        "lineHeight": "60px",
-                        "borderWidth": "1px",
-                        "borderStyle": "dashed",
-                        "borderRadius": "5px",
-                        "textAlign": "center",
-                        "margin": "10px",
-                    },
-                    # Allow multiple files to be uploaded
-                    multiple=False,
-                ),
-            ]
-        ),
-        html.H5(children="Enter the basic setup parameters:"),
-        html.Div(
-            [
-                html.P(children="Seperate IDs with comma"),
-                dcc.Input(
-                    id="input_sphere_center_atom_ids",
-                    type="text",
-                    placeholder="Sphere center atom ID",
-                ),
-                dcc.Input(
-                    id="input_z_ax_atom_ids",
-                    type="text",
-                    placeholder="IDs for Z-ax definition ",
-                ),
-                dcc.Input(
-                    id="input_xz_plane_atoms_ids",
-                    type="text",
-                    placeholder="IDs for xz-ax definition ",
-                ),
-                dcc.Input(
-                    id="input_atoms_to_delete_ids",
-                    type="text",
-                    placeholder="IDs for deletion",
-                ),
-            ],
-            style={"display": "inline-block"},
-        ),
-        # scan parameter
-        html.Div(
-            html.Button(id="init_button", n_clicks=0, children="Initialize molecule")
-        ),
-    ],
-    id="layout",
-)
+app.molecule_scanner = None
 
 
 @app.callback(
     Output("upload-data", "children"),
+    Output("3dmol_div", "children"),
     Input("upload-data", "filename"),
     Input("upload-data", "contents"),
     prevent_initial_call=True,
 )
 def update_upload_label(filename, file_content):
     data = file_content.encode("utf8").split(b";base64,")[1]
-    with open(os.path.join(working_dir, filename), "wb") as fp:
+    filename_complete = os.path.join(working_dir, filename)
+    with open(filename_complete, "wb") as fp:
         fp.write(base64.decodebytes(data))
-    return html.Div([f"Loaded {filename}.  Upload new ", html.A("File")])
+
+    viwer_3d_entries = create_3d_viewer(os.path.join(working_dir, filename_complete))
+    return (
+        html.Div([f"Loaded {filename}.  Upload new ", html.A("File")]),
+        viwer_3d_entries,
+    )
+
+
+def create_3d_viewer(filename):
+    def _get_3d_color_map():
+
+        ATOM_COLORS = {
+            "C": "#c8c8c8",
+            "H": "#ffffff",
+            "N": "#8f8fff",
+            "S": "#ffc832",
+            "O": "#f00000",
+            "F": "#ffff00",
+            "P": "#ffa500",
+            "K": "#42f4ee",
+            "G": "#3f3f3f",
+            "Au": "#ffd700",
+            "Cl": "#008000",
+        }
+
+        return ATOM_COLORS
+
+    # get coordinates and atom labels
+    cartesion_xyz = cc.Cartesian.read_xyz(filename, start_index=0)
+    df_atoms = pd.DataFrame()
+    for column in cartesion_xyz.columns:
+        df_atoms[column] = cartesion_xyz[column]
+    df_atoms = df_atoms.reset_index()
+
+    # get bonds
+    df_bonds = pd.DataFrame()
+    z_matrix = cartesion_xyz.get_zmat()[1:]
+    z_matrix["b"] = z_matrix["b"].astype(int)
+    df_bonds = z_matrix[["b", "bond"]].loc[z_matrix["bond"] < 3].reset_index()
+
+    # transform to dash bio data
+    data_3d = {"atoms": [], "bonds": []}
+    for atom in df_atoms.values:
+        new_atom = {
+            "serial": atom[0],
+            "name": atom[1],
+            "elem": atom[1],
+            "positions": [atom[2], atom[3], atom[4]],
+        }
+        data_3d["atoms"].append(new_atom)
+
+    for bond in df_bonds.values:
+        new_bond = {"atom1_index": bond[0], "atom2_index": bond[1], "bond_order": 1}
+        data_3d["bonds"].append(new_bond)
+
+    # set style
+    styles = create_mol3d_style(
+        data_3d["atoms"],
+        visualization_type="stick",
+        color_element="atom",
+        color_scheme=_get_3d_color_map(),
+    )
+
+    output = [
+        dashbio.Molecule3dViewer(
+            id="molecule3d-viewer",
+            modelData=data_3d,
+            styles=styles,
+            backgroundColor="#4E0707",
+            backgroundOpacity=1,
+        ),
+        html.Hr(),
+        html.Div(
+            id="molecule3d-selected-names",
+            style={"display": "inline-block"},
+        ),
+    ]
+    return output
+
+
+@app.callback(
+    Output("molecule3d-selected-names", "children"),
+    Input("molecule3d-viewer", "selectedAtomIds"),
+    State("molecule3d-viewer", "modelData"),
+)
+def show_selected_atoms(atom_ids, modelData):
+    if atom_ids is None or len(atom_ids) == 0:
+        return "No atom has been selected. Click somewhere on the molecular \
+        structure to select an atom."
+
+    return [
+        html.Div(
+            [
+                html.Div("Element: {} \t   ".format(modelData["atoms"][atm]["name"])),
+                html.Div("Serial: {}".format(modelData["atoms"][atm]["serial"] + 1)),
+                html.Br(),
+            ],
+            style={"width": 100, "display": "inline-block"},
+        )
+        for atm in atom_ids
+    ]
+
+
+def create_main_page():
+    tab_main_page = html.Div(
+        [
+            html.H5("Here you can configure your buried volume calculation."),
+            dcc.Upload(
+                id="upload-data",
+                children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
+                style={
+                    "width": "35%",
+                    "height": "60px",
+                    "lineHeight": "60px",
+                    "borderWidth": "1px",
+                    "borderStyle": "dashed",
+                    "borderRadius": "5px",
+                    "textAlign": "center",
+                    "margin": "10px",
+                },
+                # Allow multiple files to be uploaded
+                multiple=False,
+            ),
+            html.Div(children=[], id="3dmol_div"),
+            html.H5(children="Enter the basic setup parameters:"),
+            html.Div(
+                [
+                    html.P(children="Seperate IDs with comma"),
+                    dcc.Input(
+                        id="input_sphere_center_atom_ids",
+                        type="text",
+                        placeholder="Sphere center atom ID",
+                    ),
+                    dcc.Input(
+                        id="input_z_ax_atom_ids",
+                        type="text",
+                        placeholder="IDs for Z-ax definition ",
+                    ),
+                    dcc.Input(
+                        id="input_xz_plane_atoms_ids",
+                        type="text",
+                        placeholder="IDs for xz-ax definition ",
+                    ),
+                    dcc.Input(
+                        id="input_atoms_to_delete_ids",
+                        type="text",
+                        placeholder="IDs for deletion",
+                    ),
+                ],
+                style={"display": "inline-block"},
+            ),
+            # scan parameter
+            html.Div(
+                html.Button(
+                    id="init_button", n_clicks=0, children="Initialize molecule"
+                )
+            ),
+            html.Div(id="setup_config"),
+        ],
+        id="main_page",
+    )
+    return tab_main_page
 
 
 def create_2d_tab():
@@ -318,9 +422,8 @@ def create_3d_tab():
 
 
 @app.callback(
-    Output("layout", "children"),
+    Output("setup_config", "children"),
     Input("init_button", "n_clicks"),
-    State("layout", "children"),
     State("upload-data", "filename"),
     State("input_sphere_center_atom_ids", "value"),
     State("input_z_ax_atom_ids", "value"),
@@ -328,61 +431,44 @@ def create_3d_tab():
     State("input_atoms_to_delete_ids", "value"),
     prevent_initial_call=True,
 )
-def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
-    if n_clicks > 1:
-        orig_layout = orig_layout[0:-1]
+def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
 
     if n_clicks and filename and center_id and z_id and xz_id and del_id:
         # setup molecule scanner as part of the app object
-        app.molecule_scanner = msc(
-            xyz_filepath=os.path.join(working_dir, filename),
-            # split comma separated strings into list of int
-            sphere_center_atom_ids=list(map(int, center_id.split(","))),
-            z_ax_atom_ids=list(map(int, z_id.split(","))),
-            xz_plane_atoms_ids=list(map(int, xz_id.split(","))),
-            atoms_to_delete_ids=list(map(int, del_id.split(","))),
-            # working_dir="*/",
-        )
+        try:
 
-        orig_layout.append(
-            html.Div(
-                [
-                    html.Div(f"Initializing:"),
-                    html.Div(f"File: {filename}"),
-                    html.Div(f"center_id: {center_id}"),
-                    html.Div(f"z_id: {z_id}"),
-                    html.Div(f"xz_id: {xz_id}"),
-                    html.Div(f"del_id: {del_id}"),
-                    # add 3d visualization tool
-                ]
+            app.molecule_scanner = msc(
+                xyz_filepath=os.path.join(working_dir, filename),
+                # split comma separated strings into list of int
+                sphere_center_atom_ids=list(map(int, center_id.split(","))),
+                z_ax_atom_ids=list(map(int, z_id.split(","))),
+                xz_plane_atoms_ids=list(map(int, xz_id.split(","))),
+                atoms_to_delete_ids=list(map(int, del_id.split(","))),
+                # working_dir="*/",
             )
-        )
-        parser = PdbParser("https://git.io/4K8X.pdb")
-        data = parser.mol3d_data()
-
-        print(data)
-
-        # add all tabs
-        layout = html.Div(
-            [
-                dcc.Tabs(
-                    [
-                        dcc.Tab(label="setup", children=orig_layout),
-                        # setup the 2d page
-                        dcc.Tab(label="2D-Scan", children=create_2d_tab()),
-                        # setup the 3d page
-                        dcc.Tab(label="3D-Image", children=create_3d_tab()),
-                    ]
+        except ValueError as e:
+            if "invalid literal for int() with base 10" in str(e):
+                return html.Div(
+                    "Please make sure you have separated all values with commas and not dots."
                 )
+            else:
+                return html.Div(str(e))
+        return html.Div(
+            [
+                html.Div(f"Initializing:"),
+                html.Div(f"File: {filename}"),
+                html.Div(f"center_id: {center_id}"),
+                html.Div(f"z_id: {z_id}"),
+                html.Div(f"xz_id: {xz_id}"),
+                html.Div(f"del_id: {del_id}"),
+                # add 3d visualization tool
             ]
         )
-        return layout
+
+        # add all tabs
 
     elif n_clicks:
-        orig_layout.append(html.Div(f"Please enter all setup parameters."))
-        return orig_layout
-    else:
-        return orig_layout
+        return html.Div(f"Please enter all setup parameters.")
 
 
 @app.callback(
@@ -398,6 +484,9 @@ def start_init(n_clicks, orig_layout, filename, center_id, z_id, xz_id, del_id):
 )
 def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
     # generate table
+
+    if app.molecule_scanner is None:
+        return html.Div("Please finish the setup first.")
 
     app.df_scan = app.molecule_scanner.run_range(
         r_min=r_min,
@@ -574,3 +663,19 @@ def display_mesh(name):
         xaxis=dict(ticksuffix="   ", tickfont_size=fontsize),
     )
     return fig
+
+
+app.layout = html.Div(
+    [
+        dcc.Tabs(
+            children=[
+                dcc.Tab(create_main_page(), id="main_tab", label="Setup"),
+                dcc.Tab(label="2D-Scan", children=create_2d_tab()),
+                # setup the 3d page
+                dcc.Tab(label="3D-Image", children=create_3d_tab()),
+            ],
+            id="main_tabs",
+        ),
+    ],
+    id="layout",
+)
