@@ -11,6 +11,9 @@ import chemcoord as cc
 import pandas as pd
 from dash_bio.utils import create_mol3d_style
 
+# test for hidden import
+from sklearn.impute import SimpleImputer
+
 # https://github.com/DouwMarx/dash_by_exe
 
 
@@ -327,7 +330,7 @@ def create_2d_tab():
                 # start 2d calculation
                 html.Div(
                     dcc.Loading(
-                        id="loading_scan",
+                        id="loading_scan2d",
                         children=html.Div(
                             [
                                 html.Button(
@@ -402,7 +405,7 @@ def create_3d_tab():
                 # start 3d calculation
                 html.Div(
                     dcc.Loading(
-                        id="loading_scan",
+                        id="loading_scan3d",
                         children=html.Div(
                             [
                                 html.Button(

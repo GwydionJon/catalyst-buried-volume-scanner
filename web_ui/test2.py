@@ -10,6 +10,7 @@ app = dash.Dash(__name__)
 # parser = PdbParser("test/data/GC1.pdb")
 # parser = PdbParser("https://git.io/4K8X.pdb")
 
+
 data = {"atoms": [], "bonds": []}
 
 filename = "test/data/benzene.pdb"
