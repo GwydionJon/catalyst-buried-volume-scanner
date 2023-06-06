@@ -302,14 +302,12 @@ def create_2d_tab():
                                     "radius scaling",
                                     style={"width": "5%"},
                                 ),
-                                dcc.Input(
+                                dcc.Dropdown(
                                     id="input_radii_scale",
-                                    value=1,
-                                    type="number",
-                                    placeholder="Enter scale value",
+                                    options=["default", "vdw"],
+                                    value="default",
+                                    placeholder="Enter radii type",
                                     style={"width": "20%"},
-                                    min=0,
-                                    max=10,
                                 ),
                             ],
                             style={
@@ -485,7 +483,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
     State("input_radii_scale", "value"),
     prevent_initial_call=True,
 )
-def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
+def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_table):
     # generate table
 
     if app.molecule_scanner is None:
@@ -498,7 +496,7 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
         mesh_size=mesh_size,
         remove_H=bool(remove_h),
         write_surf_files=False,
-        radii_scale=radii_scale,
+        radii_table=radii_table,
     )
     # plot config
     plot_names = list(app.df_scan.keys())
@@ -588,7 +586,7 @@ def display_plot(name):
 def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
     app.df_cavity = app.molecule_scanner.generate_cavity(radius, mesh_size)
 
-    mesh_names = ["Top", "Bottom", "3D"]
+    mesh_names = ["Top", "Bottom", "Top+Bottom", "3D"]
 
     # this changes the save properties
     config = {
@@ -606,7 +604,7 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
             html.H4("PLY Object Explorer"),
             html.P("Choose a cavity visualization:"),
             dcc.Dropdown(
-                id="dropdown_3d", options=mesh_names, value="Top", clearable=False
+                id="dropdown_3d", options=mesh_names, value="Bottom", clearable=False
             ),
             dcc.Graph(id="graph_3d", config=config),
         ],
@@ -621,10 +619,13 @@ def display_mesh(name):
     margin = dict(l=65, r=50, b=65, t=90, pad=10)
 
     contours_coloring = "heatmap"
+    contours_dict = {"size": 0.1}
     width = 500
     height = 500
     fontsize = 18
-    X, Y, Z_top, Z_bottom = app.molecule_scanner.reshape_data(app.df_cavity)
+    line_smoothing = 0
+
+    X, Y, Z_top, Z_bottom, Z_both = app.molecule_scanner.reshape_data(app.df_cavity)
 
     if name == "Top":
 
@@ -633,7 +634,8 @@ def display_mesh(name):
                 z=Z_top,
                 x=np.unique(X),
                 y=np.unique(Y),
-                line_smoothing=1,
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
                 contours_coloring=contours_coloring,
             ),
         )
@@ -644,7 +646,19 @@ def display_mesh(name):
                 z=Z_bottom,
                 x=np.unique(X),
                 y=np.unique(Y),
-                line_smoothing=1,
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
+                contours_coloring=contours_coloring,
+            )
+        )
+    elif name == "Top+Bottom":
+        fig = go.Figure(
+            data=go.Contour(
+                z=Z_both,
+                x=np.unique(X),
+                y=np.unique(Y),
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
                 contours_coloring=contours_coloring,
             )
         )
