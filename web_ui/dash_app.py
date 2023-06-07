@@ -307,7 +307,7 @@ def create_2d_tab():
                                     options=["default", "vdw"],
                                     value="default",
                                     placeholder="Enter radii type",
-                                    style={"width": "20%"},
+                                    style={"width": "40%"},
                                 ),
                             ],
                             style={
