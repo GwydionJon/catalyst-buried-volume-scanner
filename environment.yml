@@ -12,6 +12,7 @@ dependencies:
   - jupyter-dash
   - dash
   - plotly
+  - pandoc
   - pip
   - pip:
       - py2sambvca

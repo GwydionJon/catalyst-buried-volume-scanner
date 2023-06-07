@@ -1,0 +1,50 @@
+name: Pages
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+permissions:
+  contents: write  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
+    - name: Cache conda
+      uses: actions/cache@v2
+      env:
+        # Increase this value to reset cache even if environment.yml has not changed
+        CACHE_NUMBER: 4
+      with:
+        path: ~/conda_pkgs_dir
+        key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
+
+          
+    - name: Create molecule_scanner conda environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        auto-activate-base: false
+        activate-environment: molecule_scanner
+        environment-file: environment.yml
+        use-only-tar-bz2: true
+    - name: install molecule_scanner
+      run: |
+        pip install -e .
+        python -m pip install -r requirements-dev.txt
+    - name: Build documentation
+      run: |
+        cd docs
+        make html
+    - name: Push changes to gh-pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: docs # The folder the action should deploy.

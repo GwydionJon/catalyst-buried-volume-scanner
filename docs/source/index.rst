@@ -13,7 +13,7 @@ Welcome to py2sambvca's documentation!
    intro
    original_functionality
    new_functionality
-   example_notebook
+
 
 
 Indices and tables
