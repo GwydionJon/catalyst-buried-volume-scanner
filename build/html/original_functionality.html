@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage &mdash; py2sambvca 2023 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="New funcionality" href="new_functionality.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            py2sambvca
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="new_functionality.html">New funcionality</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">py2sambvca</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/original_functionality.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
+<p>After installation, <code class="docutils literal notranslate"><span class="pre">py2sambvca</span></code> can be added to a Python script via <code class="docutils literal notranslate"><span class="pre">import</span></code> and instantiated:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">py2sambvca</span> <span class="kn">import</span> <span class="n">p2s</span>
+
+<span class="n">nhc_p2s</span> <span class="o">=</span> <span class="n">p2s</span><span class="p">(</span>
+    <span class="s2">&quot;test/data/nhc.xyz&quot;</span><span class="p">,</span>
+    <span class="p">[</span><span class="mi">22</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">path_to_sambvcax</span><span class="o">=</span><span class="s2">&quot;sambvca21.exe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>From here, running can be done stepwise or with a single function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nhc_p2s</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="c1"># equivalent to</span>
+<span class="n">nhc_p2s</span><span class="o">.</span><span class="n">write_input</span><span class="p">()</span>
+<span class="n">nhc_p2s</span><span class="o">.</span><span class="n">calc</span><span class="p">()</span>
+<span class="n">nhc_p2s</span><span class="o">.</span><span class="n">parse_output</span><span class="p">()</span>
+<span class="n">nhc_p2s</span><span class="o">.</span><span class="n">clean_files</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>All values for the total complex, quadrants, and octants are available through getters:</p>
+<p>Total Values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_free_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_exact_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_total_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_percent_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_percent_free_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_percent_total_volume()</span></code></p></li>
+</ul>
+<p>Quadrant Values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_quadrant_free_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_quadrant_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_quadrant_total_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_quadrant_percent_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_quadrant_percent_free_volume()</span></code></p></li>
+</ul>
+<p>Octant Values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_octant_free_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_octant_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_octant_total_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_octant_percent_buried_volume()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_octant_percent_free_volume()</span></code></p></li>
+</ul>
+<p>Results can also be accessed through a general getter method: <code class="docutils literal notranslate"><span class="pre">get()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_quadrant_result()</span></code>, and <code class="docutils literal notranslate"><span class="pre">get_octant_result()</span></code>.</p>
+<p>All results can also be directly accessed through dictionaries, returned from a call to <code class="docutils literal notranslate"><span class="pre">run()</span></code> or <code class="docutils literal notranslate"><span class="pre">parse_output()</span></code> and availabel through <code class="docutils literal notranslate"><span class="pre">p2s.total_results</span></code>, <code class="docutils literal notranslate"><span class="pre">p2s.quadrant_results</span></code>, and <code class="docutils literal notranslate"><span class="pre">p2s.octant_results</span></code>.</p>
+<p>In case there is something else you are looking for, you can use a general purpose <code class="docutils literal notranslate"><span class="pre">get_regex()</span></code> function to return the line containing a pattern.</p>
+</section>
+<section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h1>
+<p>Here are a couple repositories using <code class="docutils literal notranslate"><span class="pre">py2sambvca</span></code> as a Python package or extending its source code, check them out:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/hiukiwong/mof-stability-ml">Metal-organic framework stability analysis by Hiu Ki</a></p></li>
+<li><p><a class="reference external" href="https://github.com/kjelljorner/morfeus">Phosphine ligand parameterization for Machine Learning by Kjell Jorner</a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="intro.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="new_functionality.html" class="btn btn-neutral float-right" title="New funcionality" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Gwydion Jonathan Daskalakis.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
