@@ -25,17 +25,18 @@ def get_version(rel_path):
         raise RuntimeError("Unable to find version string.")
 
 
-# This call to setup() does all the work
-setup(
-    name="molecule_scanner",
-    version=get_version("molecule_scanner/__init__.py"),
-    description="Simple thin client to interface python scripts with SambVca catalytic pocket Fortran calculator.",
-    long_description=README,
-    long_description_content_type="text/markdown",
-    url="https://github.com/GwydionJon/OC-Forschi",
-    author="Gwydion Daskalakis",
-    license="GNU GPLv3",
-    classifiers=["Programming Language :: Python :: 3"],
-    packages=["molecule_scanner"],
-    include_package_data=True,
-)
+if __name__ == "__main__":
+    # This call to setup() does all the work
+    setup(
+        name="molecule_scanner",
+        version=get_version("molecule_scanner/__init__.py"),
+        description="Simple thin client to interface python scripts with SambVca catalytic pocket Fortran calculator.",
+        long_description=README,
+        long_description_content_type="text/markdown",
+        url="https://github.com/GwydionJon/OC-Forschi",
+        author="Gwydion Daskalakis",
+        license="GNU GPLv3",
+        classifiers=["Programming Language :: Python :: 3"],
+        packages=["molecule_scanner"],
+        include_package_data=True,
+    )

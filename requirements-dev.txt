@@ -7,4 +7,6 @@ sphinx-click
 sphinx_rtd_theme
 nbsphinx
 nbsphinx-link
+m2r2
+pyinstaller
 myst_parser

@@ -14,7 +14,12 @@ dependencies:
   - plotly
   - pandoc
   - pip
+  - dash
+  - dash-bio
+  - setuptools 65.6.3
   - pip:
-      - py2sambvca
+      - git+https://github.com/GwydionJon/py2sambvca
       - joblib
       - git+https://github.com/GwydionJon/OC-Forschi
+      - waitress
+      - chemcoord
