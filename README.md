@@ -1,7 +1,5 @@
-# py2sambvca
+# sambvca scanner
 
-[![Documentation Status](https://readthedocs.org/projects/py2sambvca/badge/)](https://py2sambvca.readthedocs.io/en/latest/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/GwydionJon/OC-Forschi/main)
 
 ## Disclaimer
 
