@@ -7,12 +7,10 @@ from tempfile import mkdtemp
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
-import chemcoord as cc
 import pandas as pd
 from dash_bio.utils import create_mol3d_style
+import xyz_py as xyzp
 
-# test for hidden import
-from sklearn.impute import SimpleImputer
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -70,30 +68,30 @@ def create_3d_viewer(filename):
         return ATOM_COLORS
 
     # get coordinates and atom labels
-    cartesion_xyz = cc.Cartesian.read_xyz(filename, start_index=0)
-    df_atoms = pd.DataFrame()
-    for column in cartesion_xyz.columns:
-        df_atoms[column] = cartesion_xyz[column]
-    df_atoms = df_atoms.reset_index()
+    atom_list_indices, atom_coords = xyzp.load_xyz(
+        "./test/data/nhc.xyz", add_indices=True
+    )
+    atom_list_no_indices = xyzp.load_xyz("./test/data/nhc.xyz", add_indices=False)[0]
+    print(atom_list_no_indices)
 
     # get bonds
-    df_bonds = pd.DataFrame()
-    z_matrix = cartesion_xyz.get_zmat()[1:]
-    z_matrix["b"] = z_matrix["b"].astype(int)
-    df_bonds = z_matrix[["b", "bond"]].loc[z_matrix["bond"] < 3].reset_index()
+
+    bonds_list = xyzp.find_bonds(atom_list_indices, atom_coords, style="indices")[0]
 
     # transform to dash bio data
     data_3d = {"atoms": [], "bonds": []}
-    for atom in df_atoms.values:
+    for i, (atom_ind, atom_label, atom_coord) in enumerate(
+        zip(atom_list_indices, atom_list_no_indices, atom_coords)
+    ):
         new_atom = {
-            "serial": atom[0],
-            "name": atom[1],
-            "elem": atom[1],
-            "positions": [atom[2], atom[3], atom[4]],
+            "serial": i,
+            "name": atom_label,
+            "elem": atom_label,
+            "positions": [atom_coord[0], atom_coord[1], atom_coord[2]],
         }
         data_3d["atoms"].append(new_atom)
 
-    for bond in df_bonds.values:
+    for bond in bonds_list:
         new_bond = {"atom1_index": bond[0], "atom2_index": bond[1], "bond_order": 1}
         data_3d["bonds"].append(new_bond)
 
@@ -131,6 +129,8 @@ def show_selected_atoms(atom_ids, modelData):
     if atom_ids is None or len(atom_ids) == 0:
         return "No atom has been selected. Click somewhere on the molecular \
         structure to select an atom."
+
+    print(atom_ids)
 
     return [
         html.Div(
@@ -696,3 +696,7 @@ app.layout = html.Div(
     ],
     id="layout",
 )
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True, port=8012)

@@ -41,8 +41,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "myst_parser",
     "sphinx_rtd_theme",
-    "nbsphinx",
-    "nbsphinx_link",
     "sphinx_click",
 ]
 
