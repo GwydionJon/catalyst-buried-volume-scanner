@@ -593,9 +593,11 @@ def display_plot(name):
     State("input_sphere_radius_3d", "value"),
     State("input_mesh_size_3d", "value"),
     State("input_remove_h_3d", "value"),
-    prevent_initial_call=True,
 )
 def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
+    if app.molecule_scanner is None:
+        return html.Div("")
+
     app.df_cavity = app.molecule_scanner.generate_cavity(radius, mesh_size)
 
     mesh_names = ["Top", "Bottom", "Top+Bottom", "3D"]
@@ -628,7 +630,6 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
 @app.callback(
     Output("graph_3d", "figure"),
     Input("dropdown_3d", "value"),
-    prevent_initial_call=True,
 )
 def display_mesh(name):
 
