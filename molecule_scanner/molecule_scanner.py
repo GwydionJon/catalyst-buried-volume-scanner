@@ -225,14 +225,16 @@ class MoleculeScanner:
         Parallel(n_jobs=n_threads, prefer="threads", require="sharedmem")(
             delayed(_run_job)(r) for r in np.linspace(r_min, r_max, nsteps)
         )
-
-        df_total_results = (
-            pd.DataFrame(dict_total_results)
-            .reset_index(drop=True)
-            .sort_values(by=["r"])
-        )
-        # return original values
-
+        try:
+            df_total_results = (
+                pd.DataFrame(dict_total_results)
+                .reset_index(drop=True)
+                .sort_values(by=["r"])
+            )
+            # return original values
+        except KeyError:
+            print("No results could be found.")
+            df_total_results = None
         return df_total_results
 
     def plot_graph(self, df):
