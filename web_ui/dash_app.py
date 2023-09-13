@@ -630,7 +630,6 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
 @app.callback(
     Output("graph_3d", "figure"),
     Input("dropdown_3d", "value"),
-    # prevent_initial_call=True,
 )
 def display_mesh(name):
 
