@@ -72,7 +72,6 @@ def create_3d_viewer(filename):
         "./test/data/nhc.xyz", add_indices=True
     )
     atom_list_no_indices = xyzp.load_xyz("./test/data/nhc.xyz", add_indices=False)[0]
-    print(atom_list_no_indices)
 
     # get bonds
 
@@ -124,19 +123,18 @@ def create_3d_viewer(filename):
     Output("molecule3d-selected-names", "children"),
     Input("molecule3d-viewer", "selectedAtomIds"),
     State("molecule3d-viewer", "modelData"),
+    prevent_initial_call=True,
 )
 def show_selected_atoms(atom_ids, modelData):
     if atom_ids is None or len(atom_ids) == 0:
         return "No atom has been selected. Click somewhere on the molecular \
         structure to select an atom."
 
-    print(atom_ids)
-
     return [
         html.Div(
             [
                 html.Div("Element: {} \t   ".format(modelData["atoms"][atm]["name"])),
-                html.Div("Serial: {}".format(modelData["atoms"][atm]["serial"] + 1)),
+                html.Div("Serial: {}".format(modelData["atoms"][atm]["serial"])),
                 html.Br(),
             ],
             style={"width": 100, "display": "inline-block"},
@@ -437,15 +435,19 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
     if n_clicks and filename and center_id and z_id and xz_id and del_id:
         # setup molecule scanner as part of the app object
         try:
+            # split comma separated strings into list of int
+            # we need to add 1 to all atom ids, because the molecule scanner expects indexing starting on 1 but the chemical convention is starting at 0
+            sphere_atom_ids = np.asarray(list(map(int, center_id.split(",")))) + 1
+            z_ax_atom_ids = np.asarray(list(map(int, z_id.split(",")))) + 1
+            xz_plane_atoms_ids = np.asarray(list(map(int, xz_id.split(",")))) + 1
+            atoms_to_delete_ids = np.asarray(list(map(int, del_id.split(",")))) + 1
 
             app.molecule_scanner = msc(
                 xyz_filepath=os.path.join(working_dir, filename),
-                # split comma separated strings into list of int
-                sphere_center_atom_ids=list(map(int, center_id.split(","))),
-                z_ax_atom_ids=list(map(int, z_id.split(","))),
-                xz_plane_atoms_ids=list(map(int, xz_id.split(","))),
-                atoms_to_delete_ids=list(map(int, del_id.split(","))),
-                # working_dir="*/",
+                sphere_center_atom_ids=sphere_atom_ids,
+                z_ax_atom_ids=z_ax_atom_ids,
+                xz_plane_atoms_ids=xz_plane_atoms_ids,
+                atoms_to_delete_ids=atoms_to_delete_ids,
             )
         except ValueError as e:
             if "invalid literal for int() with base 10" in str(e):
@@ -456,7 +458,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
                 return html.Div(str(e))
         return html.Div(
             [
-                html.Div(f"Initializing:"),
+                html.Div("Initializing:"),
                 html.Div(f"File: {filename}"),
                 html.Div(f"center_id: {center_id}"),
                 html.Div(f"z_id: {z_id}"),
@@ -469,7 +471,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
         # add all tabs
 
     elif n_clicks:
-        return html.Div(f"Please enter all setup parameters.")
+        return html.Div("Please enter all setup parameters.")
 
 
 @app.callback(
@@ -498,6 +500,12 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_table):
         write_surf_files=False,
         radii_table=radii_table,
     )
+
+    if app.df_scan is None:
+        return html.Div(
+            "No results found, please check that all your given indices are correct."
+        )
+
     # plot config
     plot_names = list(app.df_scan.keys())
     plot_names.remove("r")
@@ -541,7 +549,11 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_table):
     return scan_result_display
 
 
-@app.callback(Output("graph", "figure"), Input("dropdown", "value"))
+@app.callback(
+    Output("graph", "figure"),
+    Input("dropdown", "value"),
+    prevent_initial_call=True,
+)
 def display_plot(name):
     margin = dict(l=65, r=50, b=65, t=90, pad=10)
 
@@ -613,7 +625,11 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
     return results_display_3d
 
 
-@app.callback(Output("graph_3d", "figure"), Input("dropdown_3d", "value"))
+@app.callback(
+    Output("graph_3d", "figure"),
+    Input("dropdown_3d", "value"),
+    prevent_initial_call=True,
+)
 def display_mesh(name):
 
     margin = dict(l=65, r=50, b=65, t=90, pad=10)
