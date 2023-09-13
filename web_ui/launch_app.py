@@ -15,7 +15,7 @@ def open_browser():
     Open browser to localhost
     """
 
-    webbrowser.open_new("http://127.0.0.1:8080/")
+    webbrowser.open_new("http://127.0.0.1:8145/")
 
 
 Timer(1, open_browser).start()
