@@ -5,7 +5,6 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 
-import molecule_scanner
 import os
 import subprocess
 import sys
@@ -30,7 +29,7 @@ copyright = "2022, Gwydion Jonathan Daskalakis"
 author = "Gwydion Jonathan Daskalakis."
 
 # The full version, including alpha/beta/rc tags
-release = molecule_scanner.__version__
+release = "2023"
 
 
 # -- General configuration ---------------------------------------------------
@@ -40,10 +39,8 @@ release = molecule_scanner.__version__
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "m2r2",
+    "myst_parser",
     "sphinx_rtd_theme",
-    "nbsphinx",
-    "nbsphinx_link",
     "sphinx_click",
 ]
 

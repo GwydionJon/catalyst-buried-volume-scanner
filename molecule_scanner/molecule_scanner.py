@@ -81,8 +81,7 @@ class MoleculeScanner:
         orient_z=True,
         write_surf_files=True,
         return_surface_files=False,
-        custom_radii_table=None,
-        radii_scale=1,
+        radii_table="default",
     ):
 
         """Calculates the results for a single radius.
@@ -115,8 +114,7 @@ class MoleculeScanner:
                                 remove_H,
                                 orient_z,
                                 write_surf_files,
-                                custom_radii_table,
-                                radii_scale,
+                                radii_table,
                             )
                         )
                     )
@@ -138,8 +136,7 @@ class MoleculeScanner:
             remove_H=int(remove_H),
             orient_z=int(orient_z),
             write_surf_files=int(write_surf_files),
-            custom_radii_table=custom_radii_table,
-            radii_scale=radii_scale,
+            radii_table=radii_table,
             path_to_sambvcax=self.sambvca21_path,
             working_dir=dir_name,
         )
@@ -173,8 +170,7 @@ class MoleculeScanner:
         orient_z=True,
         write_surf_files=True,
         n_threads=-1,
-        custom_radii_table=None,
-        radii_scale=1,
+        radii_table="default",
     ):
         """
         This function is designed to scan a range of sphere_radii.
@@ -207,8 +203,7 @@ class MoleculeScanner:
                 remove_H=remove_H,
                 orient_z=orient_z,
                 write_surf_files=write_surf_files,
-                custom_radii_table=custom_radii_table,
-                radii_scale=radii_scale,
+                radii_table=radii_table,
             )
 
             if total_results is not None:
@@ -224,14 +219,16 @@ class MoleculeScanner:
         Parallel(n_jobs=n_threads, prefer="threads", require="sharedmem")(
             delayed(_run_job)(r) for r in np.linspace(r_min, r_max, nsteps)
         )
-
-        df_total_results = (
-            pd.DataFrame(dict_total_results)
-            .reset_index(drop=True)
-            .sort_values(by=["r"])
-        )
-        # return original values
-
+        try:
+            df_total_results = (
+                pd.DataFrame(dict_total_results)
+                .reset_index(drop=True)
+                .sort_values(by=["r"])
+            )
+            # return original values
+        except KeyError:
+            print("No results could be found.")
+            df_total_results = None
         return df_total_results
 
     def plot_graph(self, df):
@@ -328,11 +325,15 @@ class MoleculeScanner:
         df_bottom = pd.read_table(
             bottom_file, sep="\s+", usecols=[0, 1, 2], header=None
         )
+
         df_cavity = df_top[[0, 1]]
         df_cavity["top"] = df_top[2]
         df_cavity["bottom"] = df_bottom[2]
-        df_cavity["top"] = df_cavity["top"].replace(-7.0, np.nan)
-        df_cavity["bottom"] = df_cavity["bottom"].replace(7.0, np.nan)
+        df_cavity["top"] = df_cavity["top"].replace(min(df_cavity["top"]), np.nan)
+        df_cavity["bottom"] = df_cavity["bottom"].replace(
+            max(df_cavity["bottom"]), np.nan
+        )
+        df_cavity["top+bottom"] = df_cavity["top"] + df_cavity["bottom"]
 
         return df_cavity
 
@@ -342,12 +343,14 @@ class MoleculeScanner:
         y = df_cavity[1].values
         z_top = df_cavity["top"].values
         z_bottom = df_cavity["bottom"].values
+        z_both = df_cavity["top+bottom"].values
         X = x.reshape((x_y_len, -1))
         Y = y.reshape((x_y_len, -1))
         Z_top = z_top.reshape((x_y_len, -1))
         Z_bottom = z_bottom.reshape((x_y_len, -1))
+        Z_both = z_both.reshape((x_y_len, -1))
 
-        return X, Y, Z_top, Z_bottom
+        return X, Y, Z_top, Z_bottom, Z_both
 
     def run_from_ui(**args):
         pass
@@ -398,7 +401,7 @@ class MoleculeScanner:
         width = 500
         height = 500
         fontsize = 18
-
+        line_smoothing = 0
         # create the three different objects
         @app.callback(Output("graph", "figure"), Input("dropdown", "value"))
         def display_mesh(name):
@@ -409,7 +412,7 @@ class MoleculeScanner:
                         z=Z_top,
                         x=np.unique(X),
                         y=np.unique(Y),
-                        line_smoothing=1,
+                        line_smoothing=line_smoothing,
                         contours_coloring=contours_coloring,
                     ),
                 )
@@ -420,7 +423,7 @@ class MoleculeScanner:
                         z=Z_bottom,
                         x=np.unique(X),
                         y=np.unique(Y),
-                        line_smoothing=1,
+                        line_smoothing=line_smoothing,
                         contours_coloring=contours_coloring,
                     )
                 )

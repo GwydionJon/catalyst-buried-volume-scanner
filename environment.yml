@@ -12,6 +12,7 @@ dependencies:
   - jupyter-dash
   - dash
   - plotly
+  - pandoc
   - pip
   - dash
   - dash-bio

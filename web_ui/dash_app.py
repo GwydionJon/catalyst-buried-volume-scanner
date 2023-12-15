@@ -8,12 +8,10 @@ import pathlib
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
-import chemcoord as cc
 import pandas as pd
 from dash_bio.utils import create_mol3d_style
+import xyz_py as xyzp
 
-# test for hidden import
-from sklearn.impute import SimpleImputer
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -71,30 +69,29 @@ def create_3d_viewer(filename):
         return ATOM_COLORS
 
     # get coordinates and atom labels
-    cartesion_xyz = cc.Cartesian.read_xyz(filename, start_index=0)
-    df_atoms = pd.DataFrame()
-    for column in cartesion_xyz.columns:
-        df_atoms[column] = cartesion_xyz[column]
-    df_atoms = df_atoms.reset_index()
+    atom_list_indices, atom_coords = xyzp.load_xyz(
+        "./test/data/nhc.xyz", add_indices=True
+    )
+    atom_list_no_indices = xyzp.load_xyz("./test/data/nhc.xyz", add_indices=False)[0]
 
     # get bonds
-    df_bonds = pd.DataFrame()
-    z_matrix = cartesion_xyz.get_zmat()[1:]
-    z_matrix["b"] = z_matrix["b"].astype(int)
-    df_bonds = z_matrix[["b", "bond"]].loc[z_matrix["bond"] < 3].reset_index()
+
+    bonds_list = xyzp.find_bonds(atom_list_indices, atom_coords, style="indices")[0]
 
     # transform to dash bio data
     data_3d = {"atoms": [], "bonds": []}
-    for atom in df_atoms.values:
+    for i, (atom_ind, atom_label, atom_coord) in enumerate(
+        zip(atom_list_indices, atom_list_no_indices, atom_coords)
+    ):
         new_atom = {
-            "serial": atom[0],
-            "name": atom[1],
-            "elem": atom[1],
-            "positions": [atom[2], atom[3], atom[4]],
+            "serial": i,
+            "name": atom_label,
+            "elem": atom_label,
+            "positions": [atom_coord[0], atom_coord[1], atom_coord[2]],
         }
         data_3d["atoms"].append(new_atom)
 
-    for bond in df_bonds.values:
+    for bond in bonds_list:
         new_bond = {"atom1_index": bond[0], "atom2_index": bond[1], "bond_order": 1}
         data_3d["bonds"].append(new_bond)
 
@@ -127,6 +124,7 @@ def create_3d_viewer(filename):
     Output("molecule3d-selected-names", "children"),
     Input("molecule3d-viewer", "selectedAtomIds"),
     State("molecule3d-viewer", "modelData"),
+    prevent_initial_call=True,
 )
 def show_selected_atoms(atom_ids, modelData):
     if atom_ids is None or len(atom_ids) == 0:
@@ -137,7 +135,7 @@ def show_selected_atoms(atom_ids, modelData):
         html.Div(
             [
                 html.Div("Element: {} \t   ".format(modelData["atoms"][atm]["name"])),
-                html.Div("Serial: {}".format(modelData["atoms"][atm]["serial"] + 1)),
+                html.Div("Serial: {}".format(modelData["atoms"][atm]["serial"])),
                 html.Br(),
             ],
             style={"width": 100, "display": "inline-block"},
@@ -317,14 +315,12 @@ def create_2d_tab():
                                     "radius scaling",
                                     style={"width": "5%"},
                                 ),
-                                dcc.Input(
+                                dcc.Dropdown(
                                     id="input_radii_scale",
-                                    value=1,
-                                    type="number",
-                                    placeholder="Enter scale value",
-                                    style={"width": "20%"},
-                                    min=0,
-                                    max=10,
+                                    options=["default", "vdw"],
+                                    value="default",
+                                    placeholder="Enter radii type",
+                                    style={"width": "40%"},
                                 ),
                             ],
                             style={
@@ -460,14 +456,19 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id, output_path):
         else:
             output_path = working_dir
         try:
+            # split comma separated strings into list of int
+            # we need to add 1 to all atom ids, because the molecule scanner expects indexing starting on 1 but the chemical convention is starting at 0
+            sphere_atom_ids = np.asarray(list(map(int, center_id.split(",")))) + 1
+            z_ax_atom_ids = np.asarray(list(map(int, z_id.split(",")))) + 1
+            xz_plane_atoms_ids = np.asarray(list(map(int, xz_id.split(",")))) + 1
+            atoms_to_delete_ids = np.asarray(list(map(int, del_id.split(",")))) + 1
 
             app.molecule_scanner = msc(
                 xyz_filepath=os.path.join(working_dir, filename),
-                # split comma separated strings into list of int
-                sphere_center_atom_ids=list(map(int, center_id.split(","))),
-                z_ax_atom_ids=list(map(int, z_id.split(","))),
-                xz_plane_atoms_ids=list(map(int, xz_id.split(","))),
-                atoms_to_delete_ids=list(map(int, del_id.split(","))),
+                sphere_center_atom_ids=sphere_atom_ids,
+                z_ax_atom_ids=z_ax_atom_ids,
+                xz_plane_atoms_ids=xz_plane_atoms_ids,
+                atoms_to_delete_ids=atoms_to_delete_ids,
                 working_dir=output_path,
             )
         except ValueError as e:
@@ -479,7 +480,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id, output_path):
                 return html.Div(str(e))
         return html.Div(
             [
-                html.Div(f"Initializing:"),
+                html.Div("Initializing:"),
                 html.Div(f"File: {filename}"),
                 html.Div(f"center_id: {center_id}"),
                 html.Div(f"z_id: {z_id}"),
@@ -492,7 +493,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id, output_path):
         # add all tabs
 
     elif n_clicks:
-        return html.Div(f"Please enter all setup parameters.")
+        return html.Div("Please enter all setup parameters.")
 
 
 @app.callback(
@@ -506,7 +507,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id, output_path):
     State("input_radii_scale", "value"),
     prevent_initial_call=True,
 )
-def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
+def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_table):
     # generate table
 
     if app.molecule_scanner is None:
@@ -519,8 +520,14 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
         mesh_size=mesh_size,
         remove_H=bool(remove_h),
         write_surf_files=False,
-        radii_scale=radii_scale,
+        radii_table=radii_table,
     )
+
+    if app.df_scan is None:
+        return html.Div(
+            "No results found, please check that all your given indices are correct."
+        )
+
     # plot config
     plot_names = list(app.df_scan.keys())
     plot_names.remove("r")
@@ -564,7 +571,11 @@ def run_scan(n_clicks, r_min, r_max, nsteps, mesh_size, remove_h, radii_scale):
     return scan_result_display
 
 
-@app.callback(Output("graph", "figure"), Input("dropdown", "value"))
+@app.callback(
+    Output("graph", "figure"),
+    Input("dropdown", "value"),
+    prevent_initial_call=True,
+)
 def display_plot(name):
     margin = dict(l=65, r=50, b=65, t=90, pad=10)
 
@@ -604,12 +615,14 @@ def display_plot(name):
     State("input_sphere_radius_3d", "value"),
     State("input_mesh_size_3d", "value"),
     State("input_remove_h_3d", "value"),
-    prevent_initial_call=True,
 )
 def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
+    if app.molecule_scanner is None:
+        return html.Div("")
+
     app.df_cavity = app.molecule_scanner.generate_cavity(radius, mesh_size)
 
-    mesh_names = ["Top", "Bottom", "3D"]
+    mesh_names = ["Top", "Bottom", "Top+Bottom", "3D"]
 
     # this changes the save properties
     config = {
@@ -627,7 +640,7 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
             html.H4("PLY Object Explorer"),
             html.P("Choose a cavity visualization:"),
             dcc.Dropdown(
-                id="dropdown_3d", options=mesh_names, value="Top", clearable=False
+                id="dropdown_3d", options=mesh_names, value="Bottom", clearable=False
             ),
             dcc.Graph(id="graph_3d", config=config),
         ],
@@ -636,15 +649,21 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
     return results_display_3d
 
 
-@app.callback(Output("graph_3d", "figure"), Input("dropdown_3d", "value"))
+@app.callback(
+    Output("graph_3d", "figure"),
+    Input("dropdown_3d", "value"),
+)
 def display_mesh(name):
 
     margin = dict(l=65, r=50, b=65, t=90, pad=10)
 
     contours_coloring = "heatmap"
+    contours_dict = {"size": 0.1}
     width = 500
     height = 500
     fontsize = 18
+    line_smoothing = 0
+
     X, Y, Z_top, Z_bottom = app.molecule_scanner.reshape_data(app.df_cavity)
     Z_top[Z_top == np.min(Z_top)] = np.nan
     Z_bottom[Z_bottom == np.max(Z_bottom)] = np.nan
@@ -656,7 +675,8 @@ def display_mesh(name):
                 z=Z_top,
                 x=np.unique(X),
                 y=np.unique(Y),
-                line_smoothing=1,
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
                 contours_coloring=contours_coloring,
             ),
         )
@@ -667,7 +687,19 @@ def display_mesh(name):
                 z=Z_bottom,
                 x=np.unique(X),
                 y=np.unique(Y),
-                line_smoothing=1,
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
+                contours_coloring=contours_coloring,
+            )
+        )
+    elif name == "Top+Bottom":
+        fig = go.Figure(
+            data=go.Contour(
+                z=Z_both,
+                x=np.unique(X),
+                y=np.unique(Y),
+                line_smoothing=line_smoothing,
+                contours=contours_dict,
                 contours_coloring=contours_coloring,
             )
         )
@@ -705,3 +737,7 @@ app.layout = html.Div(
     ],
     id="layout",
 )
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True, port=8012)
