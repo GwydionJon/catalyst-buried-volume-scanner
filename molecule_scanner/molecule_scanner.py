@@ -34,12 +34,6 @@ class MoleculeScanner:
         z_ax_atom_ids,
         xz_plane_atoms_ids,
         atoms_to_delete_ids=None,
-        # sphere_radius=3.5,
-        # displacement=0.0,
-        # mesh_size=0.10,
-        # remove_H=1,
-        # orient_z=1,
-        # write_surf_files=1,
         working_dir=None,
         verbose=1,
     ):
