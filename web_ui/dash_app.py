@@ -4,6 +4,7 @@ from molecule_scanner import *
 import os
 import base64
 from tempfile import mkdtemp
+import pathlib
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
@@ -190,6 +191,20 @@ def create_main_page():
                     ),
                 ],
                 style={"display": "inline-block"},
+            ),
+            html.Div(
+                [
+                    html.H6("Enter save path for results:"),
+                    html.P(
+                        "Leave empty to save in a tmp directory and not save the entire generated dataset."
+                    ),
+                    html.P("Can be absolute or relative to the working directory"),
+                    dcc.Input(
+                        id="output_save_path",
+                        type="text",
+                        placeholder="Enter save path or leave empty to not save the entire results",
+                    ),
+                ]
             ),
             # scan parameter
             html.Div(
@@ -428,12 +443,18 @@ def create_3d_tab():
     State("input_z_ax_atom_ids", "value"),
     State("input_xz_plane_atoms_ids", "value"),
     State("input_atoms_to_delete_ids", "value"),
+    State("output_save_path", "value"),
     prevent_initial_call=True,
 )
-def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
+def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id, output_path):
 
     if n_clicks and filename and center_id and z_id and xz_id and del_id:
         # setup molecule scanner as part of the app object
+        if output_path:
+            output_path = pathlib.Path(output_path)
+            output_path.mkdir(parents=True, exist_ok=True)
+        else:
+            output_path = working_dir
         try:
             # split comma separated strings into list of int
             # we need to add 1 to all atom ids, because the molecule scanner expects indexing starting on 1 but the chemical convention is starting at 0
@@ -448,6 +469,7 @@ def start_init(n_clicks, filename, center_id, z_id, xz_id, del_id):
                 z_ax_atom_ids=z_ax_atom_ids,
                 xz_plane_atoms_ids=xz_plane_atoms_ids,
                 atoms_to_delete_ids=atoms_to_delete_ids,
+                working_dir=output_path,
             )
         except ValueError as e:
             if "invalid literal for int() with base 10" in str(e):
@@ -642,7 +664,9 @@ def display_mesh(name):
     fontsize = 18
     line_smoothing = 0
 
-    X, Y, Z_top, Z_bottom, Z_both = app.molecule_scanner.reshape_data(app.df_cavity)
+    X, Y, Z_top, Z_bottom = app.molecule_scanner.reshape_data(app.df_cavity)
+    Z_top[Z_top == np.min(Z_top)] = np.nan
+    Z_bottom[Z_bottom == np.max(Z_bottom)] = np.nan
 
     if name == "Top":
 
