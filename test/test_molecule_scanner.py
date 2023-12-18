@@ -1,5 +1,5 @@
 import pytest
-from molecule_scanner import msc
+from molecule_scanner.scanner import MoleculeScanner as msc
 import numpy as np
 import pandas as pd
 
