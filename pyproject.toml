@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "molecule_scanner"
 version = "0.0.2"
-description = "catalyst-burried-volume-scanner"
+description = "catalyst-buried-volume-scanner"
 readme = "README.md"
 maintainers = [
     { name = "Gwydion Daskalakis", email = "daskalakis@uni-heidelberg.de" },

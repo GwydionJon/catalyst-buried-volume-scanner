@@ -1,4 +1,4 @@
-# catalyst-burried-volume-scanner
+# catalyst-buried-volume-scanner (cbvs)
 
 ## Disclaimer
 
