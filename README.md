@@ -15,6 +15,8 @@ As of now this package is not on PyPi but can be installed via:
 pip install git+https://github.com/GwydionJon/catalyst-burried-volume-scanner
 ```
 
+## Using the GUI
+
 ## License
 
 `catalyst-burried-volume-scanner` is available under the GNU GPLv3 in accordance with the base Fortran code which is available under the same license and can be retreieved here: https://www.molnac.unisa.it/OMtools/sambvca2.1/download/download.html

@@ -1,16 +1,15 @@
 from dash import dcc, html, Dash, dash_table
 from dash.dependencies import Input, Output, State
-from molecule_scanner import *
 import os
 import base64
 from tempfile import mkdtemp
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
-import pandas as pd
 from dash_bio.utils import create_mol3d_style
 import xyz_py as xyzp
 
+from molecule_scanner.scanner import MoleculeScanner as msc
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -593,6 +592,7 @@ def display_plot(name):
     State("input_sphere_radius_3d", "value"),
     State("input_mesh_size_3d", "value"),
     State("input_remove_h_3d", "value"),
+    prevent_initial_call=True,
 )
 def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
     if app.molecule_scanner is None:
@@ -630,7 +630,7 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
 @app.callback(
     Output("graph_3d", "figure"),
     Input("dropdown_3d", "value"),
-    # prevent_initial_call=True,
+    prevent_initial_call=True,
 )
 def display_mesh(name):
 
@@ -717,4 +717,9 @@ app.layout = html.Div(
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8012)
+    import webbrowser  # For launching web pages
+
+    port = 8012
+    webbrowser.open_new(f"http://127.0.0.1:{port}/")
+
+    app.run_server(debug=True, port=port)

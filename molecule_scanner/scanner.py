@@ -1,16 +1,12 @@
-import glob
+from molecule_scanner.paths import load_executable, locate_file
 import os
 from tempfile import mkdtemp
-import shutil
 import numpy as np
 import pandas as pd
 from collections import defaultdict
 from py2sambvca import p2s
-from hashlib import sha256
 from joblib import Parallel, delayed
-from molecule_scanner import paths
-from dash import dcc, html, Input, Output
-from jupyter_dash import JupyterDash
+from dash import dcc, html, Input, Output, Dash
 import plotly.graph_objects as go
 
 """
@@ -43,7 +39,7 @@ class MoleculeScanner:
         working_dir=None,
         verbose=1,
     ):
-        """
+        """j
         This class serves as an intermediate between the py2sambvca package and the user.
         It enables the scanning of multiple sphere radii as well as plotting of the surface files.
 
@@ -57,7 +53,7 @@ class MoleculeScanner:
 
         verbose (int): 0 for no output, 1 for some output, 2 for the most output
         """
-        self.xyz_filepath = paths.locate_file(xyz_filepath)
+        self.xyz_filepath = locate_file(xyz_filepath)
         if atoms_to_delete_ids is not None:
             self.n_atoms_to_delete = len(atoms_to_delete_ids)
             self.atoms_to_delete_ids = atoms_to_delete_ids
@@ -71,7 +67,7 @@ class MoleculeScanner:
         self.n_z_atoms = len(z_ax_atom_ids)
         self.xz_plane_atoms_ids = xz_plane_atoms_ids
         self.n_xz_plane_atoms = len(xz_plane_atoms_ids)
-        self.sambvca21_path = paths.load_executable()
+        self.sambvca21_path = load_executable()
 
         if working_dir is None:
             self.working_dir = mkdtemp()
@@ -264,7 +260,7 @@ class MoleculeScanner:
         }
 
         # app setup
-        app = JupyterDash(__name__)
+        app = Dash(__name__)
 
         app.layout = html.Div(
             [
@@ -388,7 +384,7 @@ class MoleculeScanner:
             }
         }
 
-        app = JupyterDash(__name__)
+        app = Dash(__name__)
 
         app.layout = html.Div(
             [

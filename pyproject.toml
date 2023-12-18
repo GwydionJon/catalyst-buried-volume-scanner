@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "molecule_scanner"
-version = "0.0.1"
+version = "0.0.2"
 description = "catalyst-burried-volume-scanner"
 readme = "README.md"
 maintainers = [
@@ -30,8 +30,13 @@ dependencies = [
     "pandas",
     "numpy",
     "dash-bio",
+    "joblib",
+    "plotly"
 ]
+
+[project.scripts]
+cbvs_gui = "molecule_scanner:launch_molecule_scanner"
 
 [tool.setuptools]
 include-package-data = true
-packages = ["molecule_scanner", "web_ui"]
+packages = ["molecule_scanner"]
