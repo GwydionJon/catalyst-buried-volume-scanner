@@ -2,7 +2,7 @@
 
 This software package is designed to provide a rapid overview of how varying sphere radii impact the free buried volume of a given molecule.
 
-Upon successful installation of the Python package, initiate the web GUI by executing the command cbvs_gui.
+Upon successful installation of the Python package, initiate the web GUI by executing the command `cbvs_gui`.
 
 ## Setting up the molecular scanner
 
