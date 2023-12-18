@@ -24,7 +24,7 @@ R-Min and R-Max set the boundaries of the scan range, while Steps determine the 
 
 Please note that the graph may not auto-update initially during the calculation. Simply changing the dropdown menu above the graph should resolve this issue.
 
-# 3D-Image
+## 3D-Image
 
 <img src="https://github.com/GwydionJon/catalyst-buried-volume-scanner/blob/main/docs/source/pictures/third_page.png?raw=true"
           style="float: left; margin-right: 10px;" />
