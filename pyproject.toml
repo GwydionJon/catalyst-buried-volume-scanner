@@ -1,0 +1,42 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "molecule_scanner"
+version = "0.0.2"
+description = "catalyst-buried-volume-scanner"
+readme = "README.md"
+maintainers = [
+    { name = "Gwydion Daskalakis", email = "daskalakis@uni-heidelberg.de" },
+]
+requires-python = ">=3.8"
+license = { text = "GNU GPLv3" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: Unix and Windows",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = [
+    "py2sambvca@git+https://github.com/GwydionJon/py2sambvca.git",
+    "dash",
+    "dash-bootstrap-components",
+    "waitress",
+    "xyz-py",
+    "pandas",
+    "numpy",
+    "dash-bio",
+    "joblib",
+    "plotly"
+]
+
+[project.scripts]
+cbvs_gui = "molecule_scanner:launch_molecule_scanner"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["molecule_scanner"]

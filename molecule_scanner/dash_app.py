@@ -1,6 +1,5 @@
 from dash import dcc, html, Dash, dash_table
 from dash.dependencies import Input, Output, State
-from molecule_scanner import *
 import os
 import base64
 from tempfile import mkdtemp
@@ -8,10 +7,10 @@ import pathlib
 import plotly.graph_objects as go
 import numpy as np
 import dash_bio as dashbio
-import pandas as pd
 from dash_bio.utils import create_mol3d_style
 import xyz_py as xyzp
 
+from molecule_scanner.scanner import MoleculeScanner as msc
 
 # https://github.com/DouwMarx/dash_by_exe
 
@@ -177,17 +176,17 @@ def create_main_page():
                     dcc.Input(
                         id="input_z_ax_atom_ids",
                         type="text",
-                        placeholder="IDs for Z-ax definition ",
+                        placeholder="IDs for Z-axis definition ",
                     ),
                     dcc.Input(
                         id="input_xz_plane_atoms_ids",
                         type="text",
-                        placeholder="IDs for xz-ax definition ",
+                        placeholder="IDs for xz-plane definition ",
                     ),
                     dcc.Input(
                         id="input_atoms_to_delete_ids",
                         type="text",
-                        placeholder="IDs for deletion",
+                        placeholder="IDs for masking atoms",
                     ),
                 ],
                 style={"display": "inline-block"},
@@ -238,7 +237,7 @@ def create_2d_tab():
                                     value=1.3,
                                     type="number",
                                     placeholder="Enter R-min",
-                                    style={"width": "20%"},
+                                    style={"width": "20%", "margin-left": "0.5%"},
                                     min=0,
                                     max=100,
                                 ),
@@ -257,7 +256,7 @@ def create_2d_tab():
                                     value=7,
                                     type="number",
                                     placeholder="Enter R-max",
-                                    style={"width": "20%"},
+                                    style={"width": "20%", "margin-left": "0.5%"},
                                     min=0,
                                     max=100,
                                 ),
@@ -276,7 +275,7 @@ def create_2d_tab():
                                     value=50,
                                     type="number",
                                     placeholder="Enter number of steps",
-                                    style={"width": "20%"},
+                                    style={"width": "20%", "margin-left": "0.5%"},
                                     min=0,
                                     max=100000,
                                 ),
@@ -298,7 +297,7 @@ def create_2d_tab():
                                     value=0.1,
                                     type="number",
                                     placeholder="Enter mesh size",
-                                    style={"width": "20%"},
+                                    style={"width": "20%", "margin-left": "0.5%"},
                                     min=0,
                                     max=1,
                                 ),
@@ -320,7 +319,7 @@ def create_2d_tab():
                                     options=["default", "vdw"],
                                     value="default",
                                     placeholder="Enter radii type",
-                                    style={"width": "40%"},
+                                    style={"width": "44.6%", "margin-left": "0.4%"},
                                 ),
                             ],
                             style={
@@ -652,6 +651,7 @@ def visualize_cavity(n_clicks, radius, mesh_size, remove_H):
 @app.callback(
     Output("graph_3d", "figure"),
     Input("dropdown_3d", "value"),
+    prevent_initial_call=True,
 )
 def display_mesh(name):
 
@@ -728,7 +728,7 @@ app.layout = html.Div(
         dcc.Tabs(
             children=[
                 dcc.Tab(create_main_page(), id="main_tab", label="Setup"),
-                dcc.Tab(label="2D-Scan", children=create_2d_tab()),
+                dcc.Tab(label="Radii-Scan", children=create_2d_tab()),
                 # setup the 3d page
                 dcc.Tab(label="3D-Image", children=create_3d_tab()),
             ],
@@ -740,4 +740,9 @@ app.layout = html.Div(
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=8012)
+    import webbrowser  # For launching web pages
+
+    port = 8012
+    webbrowser.open_new(f"http://127.0.0.1:{port}/")
+
+    app.run_server(debug=True, port=port)

@@ -8,8 +8,6 @@ dependencies:
   - numpy
   - pandas
   - matplotlib
-  - jupyterlab-dash
-  - jupyter-dash
   - dash
   - plotly
   - pandoc
@@ -20,6 +18,5 @@ dependencies:
   - pip:
       - git+https://github.com/GwydionJon/py2sambvca
       - joblib
-      - git+https://github.com/GwydionJon/OC-Forschi
       - waitress
-      - chemcoord
+      - xyz-py

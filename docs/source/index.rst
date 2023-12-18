@@ -11,7 +11,7 @@ Welcome to sambvca-scanners's documentation!
    :caption: Contents:
 
    readme_link
-   original_functionality
+
    new_functionality
 
    modules
