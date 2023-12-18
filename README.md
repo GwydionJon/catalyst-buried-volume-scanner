@@ -1,5 +1,4 @@
-# sambvca scanner
-
+# catalyst-burried-volume-scanner
 
 ## Disclaimer
 
@@ -13,12 +12,12 @@ This work also includes the `sambvca` source code from Falivene, L. et al. Nat. 
 As of now this package is not on PyPi but can be installed via:
 
 ```python
-pip install git+https://github.com/GwydionJon/py2sambvca
+pip install git+https://github.com/GwydionJon/catalyst-burried-volume-scanner
 ```
 
 ## License
 
-`py2sambvca` is available under the GNU GPLv3 in accordance with the base Fortran code which is available under the same license and can be retreieved here: https://www.molnac.unisa.it/OMtools/sambvca2.1/download/download.html
+`catalyst-burried-volume-scanner` is available under the GNU GPLv3 in accordance with the base Fortran code which is available under the same license and can be retreieved here: https://www.molnac.unisa.it/OMtools/sambvca2.1/download/download.html
 
 The original fortran program (`sambvca21.f`) is also included in the `molecule_scaner/excecutable` directory. It is still under the same terms of the GNU license:
 
