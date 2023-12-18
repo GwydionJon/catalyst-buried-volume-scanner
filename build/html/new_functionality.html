@@ -86,40 +86,30 @@
              
   <section id="catalyst-buried-volume-scanner-user-guide">
 <h1>Catalyst-buried-volume-scanner User Guide<a class="headerlink" href="#catalyst-buried-volume-scanner-user-guide" title="Link to this heading"></a></h1>
-<p>This package is intended to quickly get an overview of how different sphere radii affect the free buried volume of a given molecule.</p>
-<p>After installing the python package simply call <code class="docutils literal notranslate"><span class="pre">cbvs_gui</span></code> to launch the web gui.</p>
-<p>Here you can first select a xyz-file of the desired molecule.</p>
+<p>This software package is designed to provide a rapid overview of how varying sphere radii impact the free buried volume of a given molecule.</p>
+<p>Upon successful installation of the Python package, initiate the web GUI by executing the command cbvs_gui.</p>
 <section id="setting-up-the-molecular-scanner">
 <h2>Setting up the molecular scanner<a class="headerlink" href="#setting-up-the-molecular-scanner" title="Link to this heading"></a></h2>
-<p>As this work is based on the original sambvca fortran code we need to first define the geometric orientation of our molecule.</p>
-<p>To get the atom ids, simply select them in the 3d-viewer.
-Below the 3d-viwer you can enter the atom ids into the corresponding input boxes.</p>
-<p><img src="/home/gwydion/Uni/oc_forschi/OC-Forschi/docs/source/pictures/first_page.png"
+<p>Since this work is built upon the original SAMBVCA Fortran code, the initial step involves defining the geometric orientation of the molecule. To obtain the atom IDs, simply select them in the 3D viewer. Below the 3D viewer, input the atom IDs into the respective boxes.</p>
+<p><img src="https://github.com/GwydionJon/catalyst-buried-volume-scanner/blob/main/docs/source/pictures/first_page.png?raw=true"
           style="float: left; margin-right: 10px;" /></p>
-<p>Note that IDs have to be seperated with a comma when multiple IDs are given.</p>
-<p>For defining the Z-axis it is best to choose the metal ion and one additional atom that is on the desired axis.
-For the xy-plane choose three IDs that form the desired plane.
-Lastly for the masking step choose all atoms whose radius you don’t want to include into the calculation. This most likely includes the metal atom itself, as well as neighboring non organic-ligand atoms.</p>
+<p>Note that when providing multiple IDs, they should be separated by a comma.</p>
+<p>For defining the Z-axis, it is recommended to choose the metal ion and one additional atom on the desired axis. To establish the XY-plane, select three IDs that form the intended plane. Lastly, for the masking step, include all atoms whose radius should not be considered in the calculation, which typically involves the metal atom itself and neighboring non-organic ligand atoms.</p>
 </section>
 <section id="radii-scan">
 <h2>Radii scan<a class="headerlink" href="#radii-scan" title="Link to this heading"></a></h2>
-<p><img src="/home/gwydion/Uni/oc_forschi/OC-Forschi/docs/source/pictures/second_page.png"
+<p><img src="https://github.com/GwydionJon/catalyst-buried-volume-scanner/blob/main/docs/source/pictures/second_page.png?raw=true"
           style="float: left; margin-right: 10px;" /></p>
-<p>All default values can be changed.
-R-Min and R-Max set the boundaries of the scan range, while Steps is the number of calculations to perform between these two values.
-A lower mesh size (eg: 0.05) will increase the accuracy slightly but has a large impact on performance.
-Radius scaling lets you choose between the default radius as defined by Cavallo et al. as 1.17* the Van der Vaals Radii and the unaltered VdW-Radii
-The is also the option to include H atoms in the calculation.</p>
-<p>Note that the graph might not auto update when first starting the calculation, simply changing the dropdown menu above the graph should fix this problem.</p>
+<p>R-Min and R-Max set the boundaries of the scan range, while Steps determine the number of calculations between these two values. A lower mesh size (e.g., 0.05) increases accuracy slightly but significantly impacts performance. Radius scaling allows you to choose between the default radius, as defined by Cavallo et al. (1.17 times the Van der Waals Radii), and the unaltered VdW-Radii. There is also an option to include H atoms in the calculation.</p>
+<p>Please note that the graph may not auto-update initially during the calculation. Simply changing the dropdown menu above the graph should resolve this issue.</p>
 </section>
 </section>
 <section id="d-image">
 <h1>3D-Image<a class="headerlink" href="#d-image" title="Link to this heading"></a></h1>
-<p><img src="/home/gwydion/Uni/oc_forschi/OC-Forschi/docs/source/pictures/second_page.png"
+<p><img src="https://github.com/GwydionJon/catalyst-buried-volume-scanner/blob/main/docs/source/pictures/third_page.png?raw=true"
           style="float: left; margin-right: 10px;" /></p>
-<p>This tab is used to view a specific sphere radius in a bit more detail.
-Here lower mesh sizes like 0.05 can be used, as the performance impact isn’t as severe when only calculating a single radius.</p>
-<p>The Dropdown menu let’s you choose which view to visualize.</p>
+<p>This tab is utilized to view a specific sphere radius in more detail. Lower mesh sizes, such as 0.05, can be employed as the performance impact is less severe when calculating a single radius.</p>
+<p>The dropdown menu enables you to choose the visualization perspective.</p>
 <section id="references">
 <h2>References:<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <ul class="simple">
