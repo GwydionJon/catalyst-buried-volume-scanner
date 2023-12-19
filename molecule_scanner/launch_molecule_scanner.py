@@ -1,11 +1,10 @@
 from molecule_scanner.dash_app import app
-from waitress import serve
 import webbrowser  # For launching web pages
 from threading import Timer
 
 app.title = "molecule scanner"
 server = app.server
-port = 8012
+port = 8013
 
 
 def open_browser():

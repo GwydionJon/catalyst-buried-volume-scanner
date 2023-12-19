@@ -38,11 +38,13 @@ app.molecule_scanner = None
 def update_upload_label(filename, file_content):
     data = file_content.encode("utf8").split(b";base64,")[1]
     filename_complete = os.path.join(working_dir, filename)
+    print(filename_complete)
+
     with open(filename_complete, "wb") as fp:
         fp.write(base64.decodebytes(data))
 
     print(filename_complete)
-    viwer_3d_entries = create_3d_viewer(os.path.join(working_dir, filename_complete))
+    viwer_3d_entries = create_3d_viewer(filename_complete)
     return (
         html.Div([f"Loaded {filename}.  Upload new ", html.A("File")]),
         viwer_3d_entries,
@@ -69,10 +71,8 @@ def create_3d_viewer(filename):
         return ATOM_COLORS
 
     # get coordinates and atom labels
-    atom_list_indices, atom_coords = xyzp.load_xyz(
-        "./test/data/nhc.xyz", add_indices=True
-    )
-    atom_list_no_indices = xyzp.load_xyz("./test/data/nhc.xyz", add_indices=False)[0]
+    atom_list_indices, atom_coords = xyzp.load_xyz(filename, add_indices=True)
+    atom_list_no_indices = xyzp.load_xyz(filename, add_indices=False)[0]
 
     # get bonds
 
@@ -664,8 +664,8 @@ def display_mesh(name):
     height = 500
     fontsize = 18
     line_smoothing = 0
-
-    X, Y, Z_top, Z_bottom = app.molecule_scanner.reshape_data(app.df_cavity)
+    print(app.molecule_scanner.reshape_data(app.df_cavity))
+    X, Y, Z_top, Z_bottom, Z_both = app.molecule_scanner.reshape_data(app.df_cavity)
     Z_top[Z_top == np.min(Z_top)] = np.nan
     Z_bottom[Z_bottom == np.max(Z_bottom)] = np.nan
 
