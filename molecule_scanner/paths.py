@@ -2,7 +2,7 @@ import os
 import sys
 import glob
 from tempfile import mkdtemp
-from tkinter.filedialog import askdirectory
+
 
 _data_dir = None
 
