@@ -41,6 +41,7 @@ def update_upload_label(filename, file_content):
     with open(filename_complete, "wb") as fp:
         fp.write(base64.decodebytes(data))
 
+    print(filename_complete)
     viwer_3d_entries = create_3d_viewer(os.path.join(working_dir, filename_complete))
     return (
         html.Div([f"Loaded {filename}.  Upload new ", html.A("File")]),
